@@ -100,6 +100,8 @@ WS						[ \t\n]
 ";"								{return SEMICOLON;}
 "="								{return ASSIGN;}
 ","								{return COMMA;}
+"<<"                             {return LSHIFT;}
+">>"                               {return RSHIFT;}
 "\n"                            {}
 
 {WS}							{/* Ignore whitespace */}
