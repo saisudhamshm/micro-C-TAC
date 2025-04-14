@@ -78,6 +78,8 @@
 %token COMMA
 %token LSHIFT
 %token RSHIFT
+%token BIT_OR
+%token BIT_XOR
 
 /*
 ID points to its entry in the symbol table
@@ -119,6 +121,10 @@ The remaining are constants from the code
 	expression_statement
     expression_opt
     shift_expression
+    bitwise_AND_expression
+    bitwise_OR_expression
+    bitwise_XOR_expression
+
 
 // Arrays
 %type<array>
@@ -633,6 +639,77 @@ relational_expression:
                                 }
                             }
                         ;
+
+
+/* After equality_expression and before logical_AND_expression */
+
+bitwise_AND_expression
+    : equality_expression
+    {
+        $$ = $1;
+    }
+    | bitwise_AND_expression BIT_AND equality_expression
+    {
+        if(typeCheck($1->symbol, $3->symbol)) {
+            $$ = new Expression();
+            $$->symbol = gentemp($1->symbol->type->type);
+            emit("&", $$->symbol->name, $1->symbol->name, $3->symbol->name);
+        }
+        else {
+            yyerror("Type error in bit AND operation");
+        }
+    }
+    ;
+
+bitwise_XOR_expression
+    : bitwise_AND_expression
+    {
+        $$ = $1;
+    }
+    | bitwise_XOR_expression BIT_XOR bitwise_AND_expression
+    {
+        if(typeCheck($1->symbol, $3->symbol)) {
+            $$ = new Expression();
+            $$->symbol = gentemp($1->symbol->type->type);
+            emit("^", $$->symbol->name, $1->symbol->name, $3->symbol->name);
+        }
+        else {
+            yyerror("Type error in bit XOR operation");
+        }
+    }
+    ;
+
+bitwise_OR_expression
+    : bitwise_XOR_expression
+    {
+        $$ = $1;
+    }
+    | bitwise_OR_expression BIT_OR bitwise_XOR_expression
+    {
+        if(typeCheck($1->symbol, $3->symbol)) {
+            $$ = new Expression();
+            $$->symbol = gentemp($1->symbol->type->type);
+            emit("|", $$->symbol->name, $1->symbol->name, $3->symbol->name);
+        }
+        else {
+            yyerror("Type error in bit OR operation");
+        }
+    }
+    ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 equality_expression:
                     relational_expression

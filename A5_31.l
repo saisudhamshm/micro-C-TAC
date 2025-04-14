@@ -84,7 +84,6 @@ WS						[ \t\n]
 ">="							{return GREATEREQ;}
 "=="							{return EQUALS;}
 "!="							{return NOTEQ;}
-"&"								{return BIT_AND;}
 "+"								{return PLUS;}
 "-"								{return SUB;}
 "*"								{return MULT;}
@@ -102,6 +101,10 @@ WS						[ \t\n]
 ","								{return COMMA;}
 "<<"                             {return LSHIFT;}
 ">>"                               {return RSHIFT;}
+"&"								{return BIT_AND;}
+"|"                                 {return BIT_OR;}
+"^"                              {return BIT_XOR;}
+
 "\n"                            {}
 
 {WS}							{/* Ignore whitespace */}

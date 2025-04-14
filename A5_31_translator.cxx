@@ -373,6 +373,10 @@ void Quad::print(int idx)
     {
         cout << "\t" << result << " = " << arg1 << " " << op << " " << arg2 << endl;
     }
+    else if (op == "&" or op == "|" or op == "^")
+    {
+        cout << "\t" << result << " = " << arg1 << " " << op << " " << arg2 << endl;
+    }
     else if (op == "==" or op == "!=" or op == "<" or op == ">" or op == "<=" or op == ">=")
     {
         cout << "\tif " << arg1 << " " << op << " " << arg2 << " goto " << result << endl;
