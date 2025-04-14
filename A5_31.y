@@ -808,12 +808,12 @@ backpatch(l, nextinstr );
 */
 
 logical_AND_expression:
-                        equality_expression
+                        bitwise_OR_expression
                             {
                                 yyinfo("logical_AND_expression => equality_expression");
                                 $$ = $1;
                             }
-                        | logical_AND_expression LOGICAL_AND M equality_expression
+                        | logical_AND_expression LOGICAL_AND M bitwise_OR_expression
                             {
                                 yyinfo("logical_AND_expression => logical_AND_expression && equality_expression");
                                 $1->toInt();
