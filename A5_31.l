@@ -19,6 +19,8 @@ VOID					"void"
 FLOAT                    "float"
 WHILE                     "while"
 DO                       "do"
+BEG                       "begin"
+END                        "end"
 
 /* Identifier */
 ID						[a-zA-Z_][a-zA-Z0-9_]*
@@ -66,6 +68,8 @@ WS						[ \t\n]
 {FLOAT}                         {return FLOAT;}
 {WHILE}                         {return WHILE;}
 {DO}                             {return DO;}
+{BEG}                           {return BEG;}
+{END}                           {return END;}
 
 {ID}							{yylval.symbol = currentTable -> search(yytext); return ID;}
 
@@ -75,8 +79,6 @@ WS						[ \t\n]
 {FLOAT_CONST}                    {yylval.floatVal = atof(yytext); return FLOAT_CONST;}
 "["								{return LSQBRACKET;}
 "]"								{return RSQBRACKET;}
-"{"								{return LBRACE;}
-"}"								{return RBRACE;}
 "("								{return LPARAN;}
 ")"								{return RPARAN;}
 "->"							{return ARROW;}

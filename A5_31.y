@@ -48,11 +48,11 @@
 %token WHILE
 %token DO
 %token FLOAT
+%token BEG
+%token END
 
 %token LSQBRACKET	
-%token RSQBRACKET	
-%token LBRACE		
-%token RBRACE		
+%token RSQBRACKET
 %token LPARAN		
 %token RPARAN		
 %token ARROW		
@@ -1233,7 +1233,7 @@ change_block:
                 ;
 
 compound_statement:
-                    LBRACE change_block change_scope_declaration block_item_list_opt RBRACE
+                    BEG change_block change_scope_declaration block_item_list_opt END
                         {
                             yyinfo("compound_statement => { block_item_list_opt }");
                             $$ = $4;
@@ -1444,9 +1444,9 @@ temp_declaration:
                         ;
 
 function_definition:  // TODO:
-                    type_specifier declarator change_scope_definition LBRACE block_item_list_opt RBRACE
+                    type_specifier declarator change_scope_definition BEG block_item_list_opt END
                         {
-                            yyinfo("function_definition => type_specifier declarator change_scope LBRACE block_item_list_opt RBRACE");
+                            yyinfo("function_definition => type_specifier declarator change_scope BEG block_item_list_opt END");
                             tableCount = 0;
                             if($2->type->type != SymbolType::VOID_T){
                                 currentTable->search("return")->update($2->type);
