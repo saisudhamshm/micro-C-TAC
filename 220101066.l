@@ -1,7 +1,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "A5_31_translator.h"
+    #include "220101066.h"
     #include "y.tab.h"
 %}
 

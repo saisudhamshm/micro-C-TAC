@@ -1,5 +1,5 @@
 %{
-    #include "A5_31_translator.h"
+    #include "220101066.h"
     extern int yylex();
     extern int yylineno;
     void yyerror(string);

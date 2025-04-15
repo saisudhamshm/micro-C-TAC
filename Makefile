@@ -1,8 +1,8 @@
-parser.out: lex.yy.o y.tab.o A5_31_translator.o
-	g++ lex.yy.o y.tab.o A5_31_translator.o -lfl -o parser.out
+parser.out: lex.yy.o y.tab.o 220101066.o
+	g++ lex.yy.o y.tab.o 220101066.o -lfl -o parser.out
 
-A5_31_translator.o: A5_31_translator.cxx A5_31_translator.h
-	g++ -c A5_31_translator.cxx
+220101066.o: 220101066.cxx 220101066.h
+	g++ -c 220101066.cxx
 
 lex.yy.o: lex.yy.c
 	g++ -c lex.yy.c
@@ -10,23 +10,14 @@ lex.yy.o: lex.yy.c
 y.tab.o: y.tab.c
 	g++ -c y.tab.c
 
-lex.yy.c: A5_31.l y.tab.h A5_31_translator.h
-	flex A5_31.l
+lex.yy.c: 220101066.l y.tab.h 220101066.h
+	flex 220101066.l
 
-y.tab.c y.tab.h: A5_31.y A5_31_translator.h
-	bison -dty --report=all A5_31.y
+y.tab.c y.tab.h: 220101066.y 220101066.h
+	bison -dty --report=all 220101066.y
 
 clean:
-	rm -f A5_31_translator.o lex.yy.* y.tab.* y.output ./OutputFiles/*.out parser.out
+	rm -f 220101066.o lex.yy.* y.tab.* y.output ./OutputFiles/*.out parser.out
 
 test: parser.out
-	./parser.out < ./InputFiles/test1.c > ./OutputFiles/quads1.out
-	./parser.out < ./InputFiles/test2.c > ./OutputFiles/quads2.out
-	./parser.out < ./InputFiles/test3.c > ./OutputFiles/quads3.out
-	./parser.out < ./InputFiles/test4.c > ./OutputFiles/quads4.out
-	./parser.out < ./InputFiles/test5.c > ./OutputFiles/quads5.out
-	./parser.out < ./InputFiles/test6.c > ./OutputFiles/quads6.out
-	./parser.out < ./InputFiles/test7.c > ./OutputFiles/quads7.out
-	./parser.out < ./InputFiles/test8.c > ./OutputFiles/quads8.out
-	./parser.out < ./InputFiles/test9.c > ./OutputFiles/quads9.out
-	./parser.out < ./InputFiles/test10.c > ./OutputFiles/quads10.out
+	./parser.out < ./test.mc < output.txt
