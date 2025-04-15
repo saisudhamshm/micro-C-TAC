@@ -15,84 +15,66 @@ Symbol *currentSymbol;
 SymbolType::typeEnum currentType;
 int tableCount, temporaryCount;
 
-/**
- * @brief Construct a new Symbol Type:: Symbol Type object
- *
- * @param type data type
- * @param arrayType type of the array
- * @param width width of array
- */
+
 SymbolType::SymbolType(typeEnum type, SymbolType *arrayType, int width) : type(type), width(width), arrayType(arrayType) {}
 
-/**
- * @brief function to get the size of Symbol type
- *
- * @return int
- */
+
 int SymbolType::getSize()
 {
     if(type == FUNCTION){
         cout<<"hi1\n";
     }
-    if (type == CHAR_T)
-        return 1;
-    else if (type == INT_T || type == POINTER)
-        return 4;
-    else if (type == ARRAY)
-        return width * (arrayType->getSize());
-     else if (type == FLOAT_T)
-             return 8;
 
-    else
-        return 0;
-    return 0;
+    switch(type) {
+        case CHAR_T:
+            return 1;
+        case INT_T:
+        case POINTER:
+            return 4;
+        case ARRAY:
+            return width * (arrayType->getSize());
+        case FLOAT_T:
+            return 8;
+        default:
+            return 0;
+    }
 }
 
-/**
- * @brief function to get the symbol type in string format
- *
- * @return string
- */
+
+
 string SymbolType::toString()
 {
-    if (type == SymbolType::VOID_T)
-        return "void";
-    else if (type == SymbolType::CHAR_T)
-        return "char";
-    else if (type == SymbolType::INT_T)
-        return "int";
-    else if (type == SymbolType::POINTER)
-        return "ptr(" + arrayType->toString() + ")";
-    else if (type == SymbolType::FUNCTION)
-        return "function";
-    else if (type == SymbolType::FLOAT_T)
+    switch(type) {
+        case SymbolType::VOID_T:
+            return "void";
+        case SymbolType::CHAR_T:
+            return "char";
+        case SymbolType::INT_T:
+            return "int";
+        case SymbolType::POINTER:
+            return "ptr(" + arrayType->toString() + ")";
+        case SymbolType::FUNCTION:
+            return "function";
+        case SymbolType::FLOAT_T:
             return "float";
-
-    else if (type == SymbolType::ARRAY)
-        return "array(" + to_string(width) + ", " + arrayType->toString() + ")";
-    else if (type == SymbolType::BLOCK)
-        return "block";
-    return "";
+        case SymbolType::ARRAY:
+            return "array(" + to_string(width) + ", " + arrayType->toString() + ")";
+        case SymbolType::BLOCK:
+            return "block";
+        default:
+            return "";
+    }
 }
+
 string toString(float f)
 {
-    return to_string(f);
+
+return to_string(f);
 }
-/**
- * @brief Construct a new Symbol Table:: Symbol Table object
- *
- * @param name name of symbol type
- * @param parent parent of symbol type
- */
+
 SymbolTable::SymbolTable(string name, SymbolTable *parent) : name(name), parent(parent) {}
 
-/**
- * TODO:
- * @brief function to look for the symbol in the symbol table
- *
- * @param name name of the symbol
- * @return Symbol*
- */
+
 Symbol *SymbolTable::search(string name)
 {
     // if symbol already present
@@ -139,10 +121,7 @@ Symbol *SymbolTable::search1(string name)
 }
 
 
-/**
- * @brief function to update the offset of symbols in the symbol table
- *
- */
+
 void SymbolTable::calculateOffset()
 {
     int offset;
@@ -179,10 +158,7 @@ void SymbolTable::calculateOffset()
     }
 }
 
-/**
- * @brief function to print the symbol table
- *
- */
+
 void SymbolTable::print()
 {
     cout << string(140, '-') << endl;
@@ -262,35 +238,19 @@ void SymbolTable::print()
     }
 }
 
-/**
- * @brief Constructor for Symbol Class
- *
- * @param name Name of Symbol
- * @param type symbol type
- * @param init initial value
- */
+
 Symbol::Symbol(string name, SymbolType::typeEnum type, string init) : name(name), type(new SymbolType(type)), offset(0), nestedTable(NULL), initialValue(init), isFunction(false)
 {
     size = this->type->getSize();
 }
-/**
- * @brief function to update the type of symbol
- *
- * @param type type of the symbol
- * @return Symbol*
- */
+
 Symbol *Symbol::update(SymbolType *type)
 {
     this->type = type;
     size = this->type->getSize();
     return this;
 }
-/**
- * @brief function to convert the type of the symbol
- *
- * @param targetType new type of symbol
- * @return Symbol*
- */
+
 Symbol *Symbol::convert(SymbolType::typeEnum targetType)
 {
     if ((type)->type == SymbolType::INT_T && targetType == SymbolType::CHAR_T)
@@ -308,30 +268,13 @@ Symbol *Symbol::convert(SymbolType::typeEnum targetType)
     return this;
 }
 
-/**
- * @brief Construct a new Quad:: Quad object
- *
- * @param result result
- * @param arg1 argument 1
- * @param op operator
- * @param arg2 argument 2
- */
+
 Quad::Quad(string result, string arg1, string op, string arg2) : result(result), op(op), arg1(arg1), arg2(arg2) {}
-/**
- * @brief Construct a new Quad:: Quad object
- *
- * @param result result
- * @param arg1 integer passed as argument 1
- * @param op operator
- * @param arg2 argument 2
- */
+
 Quad::Quad(string result, int arg1, string op, string arg2) : result(result), op(op), arg1(toString(arg1)), arg2(arg2) {}
 
 
-/**
- * @brief function to print the quadruple
- *
- */
+
 void Quad::print(int idx)
 {
 
@@ -404,40 +347,21 @@ void Quad::print(int idx)
     }
 }
 
-/**
- * @brief function to create a new quadruple and store it in the quad array
- *
- * @param op operator
- * @param result result
- * @param arg1 argument 1
- * @param arg2 argument 2
- */
+
 void emit(string op, string result, string arg1, string arg2)
 {
     Quad *q = new Quad(result, arg1, op, arg2);
     quadArray.push_back(q);
 }
 
-/**
- * @brief function to create a mew quadruple and store it in the quad array if first argument is passed as integer
- *
- * @param op operator
- * @param result result
- * @param arg1 argument 1 (integer)
- * @param arg2 argument 2
- */
+
 void emit(string op, string result, int arg1, string arg2)
 {
     Quad *q = new Quad(result, arg1, op, arg2);
     quadArray.push_back(q);
 }
 
-/**
- * @brief function to backpatch the list with addr
- *
- * @param list_ list
- * @param addr address
- */
+
 void backpatch(list<int> list_, int addr)
 {
     for (auto &i : list_)
@@ -446,12 +370,7 @@ void backpatch(list<int> list_, int addr)
     }
 }
 
-/**
- * @brief function to create a new list with base as the only element
- *
- * @param base
- * @return list<int>
- */
+
 list<int> makeList(int base)
 {
     list<int> buff;
@@ -459,13 +378,7 @@ list<int> makeList(int base)
     return buff;
 }
 
-/**
- * @brief function to merge two lists
- *
- * @param first first list
- * @param second second list
- * @return list<int>
- */
+
 list<int> merge(list<int> first, list<int> second)
 {
     list<int> ret = first;
@@ -473,10 +386,7 @@ list<int> merge(list<int> first, list<int> second)
     return ret;
 }
 
-/**
- * @brief function to return the expression value as integer value
- *
- */
+
 void Expression::toInt()
 {
     if (type == Expression::typeEnum::BOOLEAN)
@@ -490,10 +400,7 @@ void Expression::toInt()
     }
 }
 
-/**
- * @brief function to return the expression value as boolean value
- *
- */
+
 void Expression::toBool()
 {
     if (type == Expression::typeEnum::NONBOOLEAN)
@@ -505,23 +412,13 @@ void Expression::toBool()
     }
 }
 
-/**
- * @brief function to get the next instruction number
- *
- * @return int
- */
+
 int nextInstruction()
 {
     return quadArray.size() + 1;
 }
 
-/**
- * @brief function to generate new temp variable and insert in the symbol table
- *
- * @param type symbol type
- * @param initialValue
- * @return Symbol*
- */
+
 Symbol *gentemp(SymbolType::typeEnum type, string intialValue)
 {
     Symbol *temp = new Symbol("t" + toString(temporaryCount++), type, intialValue);
@@ -530,11 +427,7 @@ Symbol *gentemp(SymbolType::typeEnum type, string intialValue)
     return temp;
 }
 
-/**
- * @brief function to change the current table
- *
- * @param table new current table
- */
+
 void changeTable(SymbolTable *table)
 {
     currentTable = table;
@@ -552,14 +445,7 @@ bool type_comp(SymbolType* first,SymbolType* second){
 }
 
 
-/**
- * @brief function to check whether two symbols have same type
- *
- * @param a first symbol
- * @param b second symbol
- * @return true
- * @return false
- */
+
 bool typeCheck(Symbol *&a, Symbol *&b)
 {
     if (type_comp(a->type, b->type))
@@ -577,34 +463,20 @@ bool typeCheck(Symbol *&a, Symbol *&b)
 }
 
 
-/**
- * @brief function to convert int to string
- *
- * @param i
- * @return string
- */
+
 string toString(int i)
 {
     return to_string(i);
 }
 
 
-/**
- * @brief function to convert char to string
- *
- * @param c
- * @return string
- */
+
 string toString(char c)
 {
     return string(1, c);
 }
 
-/**
- * @brief main function
- *
- * @return int
- */
+
 int main()
 {
     // initializing tablecount and tempCount
