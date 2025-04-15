@@ -1,5 +1,5 @@
-parser.out: lex.yy.o y.tab.o 220101066.o
-	g++ lex.yy.o y.tab.o 220101066.o -lfl -o parser.out
+parser: lex.yy.o y.tab.o 220101066.o
+	g++ lex.yy.o y.tab.o 220101066.o -lfl -o parser
 
 220101066.o: 220101066.cxx 220101066.h
 	g++ -c 220101066.cxx
@@ -17,7 +17,8 @@ y.tab.c y.tab.h: 220101066.y 220101066.h
 	bison -dty --report=all 220101066.y
 
 clean:
-	rm -f 220101066.o lex.yy.* y.tab.* y.output ./OutputFiles/*.out parser.out
+	rm -f 220101066.o lex.yy.* y.tab.* y.output ./OutputFiles/*.out parser 220101066_test*.txt
 
-test: parser.out
-	./parser.out < ./test.mc < output.txt
+test: parser
+	./parser < 220101066_test1.mc > 220101066_test1.txt
+	./parser < 220101066_test2.mc > 220101066_test2.txt
