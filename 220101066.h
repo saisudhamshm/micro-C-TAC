@@ -227,7 +227,7 @@ list<int> makeList(int i);
 list<int> merge(list<int>, list<int>); 
 
 int nextInstruction();                              
-Symbol *gentemp(SymbolType::SpecificType
+Symbol *generateTemporary(SymbolType::SpecificType
 , string = ""); 
 void changeTable(SymbolTable *);
 

@@ -201,7 +201,7 @@ primary_expression:
                             yyinfo("primary_expression => INT_CONST");
                             $$ = new Expression();
                             // a new tempvar is created & initialised with $1 value, and the symbol points to this
-                            $$->symbol = gentemp(SymbolType::INT_T, toString($1));
+                            $$->symbol = generateTemporary(SymbolType::INT_T, toString($1));
                             // and extra quad is entered which initialises the temp var = $1->intValue
                             // so wherever this int was used, now this temp var will be used in its place
                             emit("=", $$->symbol->name, $1);
@@ -211,7 +211,7 @@ primary_expression:
                             yyinfo("primary_expression => CHAR_CONST");
                             // exactly similar to INT_COST
                             $$ = new Expression();
-                            $$->symbol = gentemp(SymbolType::CHAR_T, $1);
+                            $$->symbol = generateTemporary(SymbolType::CHAR_T, $1);
                             emit("=", $$->symbol->name, $1);
                         }
                     | STRING_CONST
@@ -220,7 +220,7 @@ primary_expression:
                             $$ = new Expression();
                             // no 'string' type, but if char* str = "Vedant-Mansi"
                             // then the string "Vedant-Mansi" is identified as STRING_const/literal,
-		                    $$->symbol = gentemp(SymbolType::POINTER, $1);
+		                    $$->symbol = generateTemporary(SymbolType::POINTER, $1);
                             // emit("=str", $$->symbol->name, stringLiterals.size());
 		                    $$->symbol->type->arrayType = new SymbolType(SymbolType::CHAR_T);
                         }
@@ -233,7 +233,7 @@ primary_expression:
                          {
                              $$ = new Expression();
                              string val = toString($1);
-                             Symbol *s = gentemp(SymbolType::FLOAT_T, val);
+                             Symbol *s = generateTemporary(SymbolType::FLOAT_T, val);
                              s->initialValue = val;
                              $$->symbol = s;
                          }
@@ -260,12 +260,12 @@ postfix_expression:
                             $$ = new Array();           // creating new array object
                             $$->symbol = $1->symbol;    // previous symbol
                             $$->subArrayType = $1->subArrayType->arrayType;
-                            $$->temp = gentemp(SymbolType::INT_T); // temporary to compute location
+                            $$->temp = generateTemporary(SymbolType::INT_T); // temporary to compute location
                             $$->type = Array::ARRAY;    // type will be array
 
                             if($1->type == Array::ARRAY) {
                                 // adding the size of subarray and adding
-                                Symbol *sym = gentemp(SymbolType::INT_T);
+                                Symbol *sym = generateTemporary(SymbolType::INT_T);
                                 emit("*", sym->name, $3->symbol->name, toString($$->subArrayType->getSize()));
                                 emit("+", $$->temp->name, $1->temp->name, sym->name);
                             } else {
@@ -279,7 +279,7 @@ postfix_expression:
                             // number of parameters - argument_expression_list
                             yyinfo("postfix_expression => postfix_expression ( argument_expression_list_opt )");
                             $$ = new Array();
-                            $$->symbol = gentemp($1->symbol->type->type);
+                            $$->symbol = generateTemporary($1->symbol->type->type);
 
                             $$->symbol->type->arrayType = $1->symbol->type->arrayType;
 
@@ -340,7 +340,7 @@ unary_expression:
                                 // here x is the unary expression
                                 $$ = new Array();
                                 // i need to create a temp var for storing the address of x (&x), which needs to be pointer type
-                                $$->symbol = gentemp(SymbolType::POINTER);
+                                $$->symbol = generateTemporary(SymbolType::POINTER);
                                 // if x is a pointer of int, then $$->symbol's type's array type is set to int
                                 $$->symbol->type->arrayType = $2->symbol->type;
 
@@ -351,8 +351,8 @@ unary_expression:
 
                                 $$ = new Array();
                                 $$->type = Array::POINTER;
-                                // $$->temp = gentemp($2->symbol->type->type);
-                                $$->temp = gentemp($2->temp->type->arrayType->type);
+                                // $$->temp = generateTemporary($2->symbol->type->type);
+                                $$->temp = generateTemporary($2->temp->type->arrayType->type);
                                 // if x = *y;
                                 // then temp will be t11 = int value of (*y), after dereferencing
                                 $$->symbol = $2->symbol;
@@ -364,7 +364,7 @@ unary_expression:
                             } else {
 
                                 $$ = new Array();
-                                $$->symbol = gentemp($2->symbol->type->type);
+                                $$->symbol = generateTemporary($2->symbol->type->type);
                                 emit($1, $$->symbol->name, $2->symbol->name);
                             }
                         }
@@ -427,7 +427,7 @@ multiplicative_expression:
                                     yyinfo("multiplicative_expression => unary_expression");
                                     $$ = new Expression();
                                     if($1->type == Array::ARRAY) {
-                                        $$->symbol = gentemp(baseType->type);
+                                        $$->symbol = generateTemporary(baseType->type);
                                         emit("=[]", $$->symbol->name, $1->symbol->name, $1->temp->name);
                                     } else if($1->type == Array::POINTER) {
                                         $$->symbol = $1->temp;
@@ -446,7 +446,7 @@ multiplicative_expression:
                                         baseType = baseType->arrayType;
                                     Symbol *temp;
                                     if($3->type == Array::ARRAY) {
-                                        temp = gentemp(baseType->type);
+                                        temp = generateTemporary(baseType->type);
                                         emit("=[]", temp->name, $3->symbol->name, $3->temp->name);
                                     } else if($3->type == Array::POINTER) {
                                         temp = $3->temp;
@@ -456,7 +456,7 @@ multiplicative_expression:
                                     yyinfo("multiplicative_expression => multiplicative_expression * unary_expression");
                                     if(typeCheck($1->symbol, temp)) {
                                         $$ = new Expression();
-                                        $$->symbol = gentemp($1->symbol->type->type);
+                                        $$->symbol = generateTemporary($1->symbol->type->type);
                                         emit("*", $$->symbol->name, $1->symbol->name, temp->name);
                                     } else {
                                         yyerror("Type error.");
@@ -469,7 +469,7 @@ multiplicative_expression:
                                         baseType = baseType->arrayType;
                                     Symbol *temp;
                                     if($3->type == Array::ARRAY) {
-                                        temp = gentemp(baseType->type);
+                                        temp = generateTemporary(baseType->type);
                                         emit("=[]", temp->name, $3->symbol->name, $3->temp->name);
                                     } else if($3->type == Array::POINTER) {
                                         temp = $3->temp;
@@ -479,7 +479,7 @@ multiplicative_expression:
                                     yyinfo("multiplicative_expression => multiplicative_expression / unary_expression");
                                     if(typeCheck($1->symbol, temp)) {
                                         $$ = new Expression();
-                                        $$->symbol = gentemp($1->symbol->type->type);
+                                        $$->symbol = generateTemporary($1->symbol->type->type);
                                         emit("/", $$->symbol->name, $1->symbol->name, temp->name);
                                     } else {
                                         yyerror("Type error.");
@@ -492,7 +492,7 @@ multiplicative_expression:
                                         baseType = baseType->arrayType;
                                     Symbol *temp;
                                     if($3->type == Array::ARRAY) {
-                                        temp = gentemp(baseType->type);
+                                        temp = generateTemporary(baseType->type);
                                         emit("=[]", temp->name, $3->symbol->name, $3->temp->name);
                                     } else if($3->type == Array::POINTER) {
                                         temp = $3->temp;
@@ -502,7 +502,7 @@ multiplicative_expression:
                                     yyinfo("multiplicative_expression => multiplicative_expression % unary_expression");
                                     if(typeCheck($1->symbol, temp)) {
                                         $$ = new Expression();
-                                        $$->symbol = gentemp($1->symbol->type->type);
+                                        $$->symbol = generateTemporary($1->symbol->type->type);
                                         emit("%", $$->symbol->name, $1->symbol->name, temp->name);
                                     } else {
                                         yyerror("Type error.");
@@ -526,7 +526,7 @@ additive_expression:
                             yyinfo("additive_expression => additive_expression + multiplicative_expression");
                             if(typeCheck($1->symbol, $3->symbol)) {
                                 $$ = new Expression();
-                                $$->symbol = gentemp($1->symbol->type->type);
+                                $$->symbol = generateTemporary($1->symbol->type->type);
                                 emit("+", $$->symbol->name, $1->symbol->name, $3->symbol->name);
                             } else {
                                 yyerror("Type error.");
@@ -537,7 +537,7 @@ additive_expression:
                             yyinfo("additive_expression => additive_expression - multiplicative_expression");
                             if(typeCheck($1->symbol, $3->symbol)) {
                                 $$ = new Expression();
-                                $$->symbol = gentemp($1->symbol->type->type);
+                                $$->symbol = generateTemporary($1->symbol->type->type);
                                 emit("-", $$->symbol->name, $1->symbol->name, $3->symbol->name);
                             } else {
                                 yyerror("Type error.");
@@ -554,7 +554,7 @@ shift_expression
     {
         if(typeCheck($1->symbol, $3->symbol)) {
             $$ = new Expression();
-            $$->symbol = gentemp($1->symbol->type->type);
+            $$->symbol = generateTemporary($1->symbol->type->type);
             emit("<<", $$->symbol->name, $1->symbol->name, $3->symbol->name);
             $$->type = Expression::NONBOOLEAN;
         }
@@ -566,7 +566,7 @@ shift_expression
     {
         if(typeCheck($1->symbol, $3->symbol)) {
             $$ = new Expression();
-            $$->symbol = gentemp($1->symbol->type->type);
+            $$->symbol = generateTemporary($1->symbol->type->type);
             emit(">>", $$->symbol->name, $1->symbol->name, $3->symbol->name);
             $$->type = Expression::NONBOOLEAN;
         }
@@ -654,7 +654,7 @@ bitwise_AND_expression
     {
         if(typeCheck($1->symbol, $3->symbol)) {
             $$ = new Expression();
-            $$->symbol = gentemp($1->symbol->type->type);
+            $$->symbol = generateTemporary($1->symbol->type->type);
             emit("&", $$->symbol->name, $1->symbol->name, $3->symbol->name);
         }
         else {
@@ -672,7 +672,7 @@ bitwise_XOR_expression
     {
         if(typeCheck($1->symbol, $3->symbol)) {
             $$ = new Expression();
-            $$->symbol = gentemp($1->symbol->type->type);
+            $$->symbol = generateTemporary($1->symbol->type->type);
             emit("^", $$->symbol->name, $1->symbol->name, $3->symbol->name);
         }
         else {
@@ -690,7 +690,7 @@ bitwise_OR_expression
     {
         if(typeCheck($1->symbol, $3->symbol)) {
             $$ = new Expression();
-            $$->symbol = gentemp($1->symbol->type->type);
+            $$->symbol = generateTemporary($1->symbol->type->type);
             emit("|", $$->symbol->name, $1->symbol->name, $3->symbol->name);
         }
         else {
@@ -792,7 +792,7 @@ B.truelist = merge(B 1 .truelist, B 2 .truelist);
 B.falselist = B 2 .falselist;
 
  ? :
-E .loc = gentemp();
+E .loc = generateTemporary();
 E .type = E 2 .type; // Assume E 2 .type = E 3 .type
 emit(E .loc ’=’ E 3 .loc); // Control gets here by fall-through
 l = makelist(nextinstr );
@@ -856,7 +856,7 @@ conditional_expression:
                         /* | LPARAN logical_OR_expression RPARAN N QUES M expression N COLON M conditional_expression
                             {
                                 yyinfo("conditional_expression => ( logical_OR_expression ) ? expression : conditional_expression");
-                                $$->symbol = gentemp($7->symbol->type->type);
+                                $$->symbol = generateTemporary($7->symbol->type->type);
                                 emit("=", $$->symbol->name, $11->symbol->name);
                                 list<int> l = makeList(nextInstruction());
                                 emit("goto", "");
@@ -874,7 +874,7 @@ conditional_expression:
                             // $1                $2 $3  $4 $5        $6  $7  $8 $9
                             {
                                 yyinfo("conditional_expression => logical_OR_expression ? expression : conditional_expression");
-                                $$->symbol = gentemp($5->symbol->type->type);
+                                $$->symbol = generateTemporary($5->symbol->type->type);
                                 emit("=", $$->symbol->name, $9->symbol->name);
                                 list<int> l = makeList(nextInstruction());
                                 emit("goto", "");

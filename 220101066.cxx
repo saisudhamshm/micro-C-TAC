@@ -326,13 +326,13 @@ Symbol *Symbol::convert(SymbolType::SpecificType targetType)
 {
     if ((type)->type == SymbolType::INT_T && targetType == SymbolType::CHAR_T)
     {
-        Symbol *fin_ = gentemp(targetType);
+        Symbol *fin_ = generateTemporary(targetType);
         emit("=", fin_->name, "INT_TO_CHAR(" + name + ")");
         return fin_;
     }
     else if ((type)->type == SymbolType::CHAR_T && targetType == SymbolType::INT_T)
     {
-        Symbol *fin_ = gentemp(targetType);
+        Symbol *fin_ = generateTemporary(targetType);
         emit("=", fin_->name, "CHAR_TO_INT(" + name + ")");
         return fin_;
     }
@@ -448,7 +448,7 @@ void Expression::toInt()
 {
     if (type == Expression::SpecificType::BOOLEAN)
     {
-        symbol = gentemp(SymbolType::SpecificType::INT_T);
+        symbol = generateTemporary(SymbolType::SpecificType::INT_T);
         backpatch(trueList, nextInstruction());
         emit("=", symbol->name, "true");
         emit("goto", toString(nextInstruction()+1));
@@ -476,7 +476,7 @@ int nextInstruction()
 }
 
 
-Symbol *gentemp(SymbolType::SpecificType type, string intialValue)
+Symbol *generateTemporary(SymbolType::SpecificType type, string intialValue)
 {
     Symbol *temp = new Symbol("t" + toString(temporaryCount++), type, intialValue);
     temp->category = Symbol::TEMPORARY;
