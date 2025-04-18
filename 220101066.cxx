@@ -1,31 +1,47 @@
 #include "220101066.h"
-/**
- * @brief Global variables
- *
- * quadArray: vector of quads
- * currentTable, globalTable, parentTable : Symbol Tables
- * currentSmbol : pointer to current symbol
- * currentType : Data type of the current symbol
- * tableCount : total symbol tables
- * temporaryCount : temporary count
- */
 vector<Quad *> quadArray;
 SymbolTable *currentTable, *globalTable, *parentTable;
 Symbol *currentSymbol;
-SymbolType::typeEnum currentType;
+SymbolType::SpecificType currentType;
 int tableCount, temporaryCount;
 
 
-SymbolType::SymbolType(typeEnum type, SymbolType *arrayType, int width) : type(type), width(width), arrayType(arrayType) {}
+SymbolType::SymbolType(SpecificType type, SymbolType* _arrayType, int _width) : 
+    specificType(type), 
+    baseCategory(deriveBaseCategory(type)), 
+    width(_width), 
+    arrayType(_arrayType) {}
 
+SymbolType::BaseCategory SymbolType::deriveBaseCategory(SpecificType type) {
+    switch(type) {
+        case INT_T:
+        case FLOAT_T:
+        case CHAR_T:
+        case VOID_T:
+            return PRIMITIVE;
+            
+        case POINTER:
+        case ARRAY:
+            return COMPOSITE;
+            
+        case FUNCTION:
+        case PARAMETER:
+            return FUNCTIONAL;
+            
+        case BLOCK:
+            return SPECIAL;
+            
+        default:
+            return SPECIAL; // Default case
+    }
+}
 
-int SymbolType::getSize()
-{
-    if(type == FUNCTION){
-        cout<<"hi1\n";
+int SymbolType::getSize() {
+    if(specificType == FUNCTION) {
+        cout<<"nah man\n";
     }
 
-    switch(type) {
+    switch(specificType) {
         case CHAR_T:
             return 1;
         case INT_T:
@@ -42,24 +58,23 @@ int SymbolType::getSize()
 
 
 
-string SymbolType::toString()
-{
-    switch(type) {
-        case SymbolType::VOID_T:
+string SymbolType::toString() {
+    switch(specificType) {
+        case VOID_T:
             return "void";
-        case SymbolType::CHAR_T:
+        case CHAR_T:
             return "char";
-        case SymbolType::INT_T:
+        case INT_T:
             return "int";
-        case SymbolType::POINTER:
+        case POINTER:
             return "ptr(" + arrayType->toString() + ")";
-        case SymbolType::FUNCTION:
+        case FUNCTION:
             return "function";
-        case SymbolType::FLOAT_T:
+        case FLOAT_T:
             return "float";
-        case SymbolType::ARRAY:
+        case ARRAY:
             return "array(" + to_string(width) + ", " + arrayType->toString() + ")";
-        case SymbolType::BLOCK:
+        case BLOCK:
             return "block";
         default:
             return "";
@@ -239,7 +254,7 @@ void SymbolTable::print()
 }
 
 
-Symbol::Symbol(string name, SymbolType::typeEnum type, string init) : name(name), type(new SymbolType(type)), offset(0), nestedTable(NULL), initialValue(init), isFunction(false)
+Symbol::Symbol(string name, SymbolType::SpecificType type, string init) : name(name), type(new SymbolType(type)), offset(0), nestedTable(NULL), initialValue(init), isFunction(false)
 {
     size = this->type->getSize();
 }
@@ -251,7 +266,7 @@ Symbol *Symbol::update(SymbolType *type)
     return this;
 }
 
-Symbol *Symbol::convert(SymbolType::typeEnum targetType)
+Symbol *Symbol::convert(SymbolType::SpecificType targetType)
 {
     if ((type)->type == SymbolType::INT_T && targetType == SymbolType::CHAR_T)
     {
@@ -389,9 +404,9 @@ list<int> merge(list<int> first, list<int> second)
 
 void Expression::toInt()
 {
-    if (type == Expression::typeEnum::BOOLEAN)
+    if (type == Expression::SpecificType::BOOLEAN)
     {
-        symbol = gentemp(SymbolType::typeEnum::INT_T);
+        symbol = gentemp(SymbolType::SpecificType::INT_T);
         backpatch(trueList, nextInstruction());
         emit("=", symbol->name, "true");
         emit("goto", toString(nextInstruction()+1));
@@ -403,7 +418,7 @@ void Expression::toInt()
 
 void Expression::toBool()
 {
-    if (type == Expression::typeEnum::NONBOOLEAN)
+    if (type == Expression::SpecificType::NONBOOLEAN)
     {
         falseList = makeList(nextInstruction());
         emit("==", "", symbol->name, "0");
@@ -419,7 +434,7 @@ int nextInstruction()
 }
 
 
-Symbol *gentemp(SymbolType::typeEnum type, string intialValue)
+Symbol *gentemp(SymbolType::SpecificType type, string intialValue)
 {
     Symbol *temp = new Symbol("t" + toString(temporaryCount++), type, intialValue);
     temp->category = Symbol::TEMPORARY;

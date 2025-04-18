@@ -24,24 +24,73 @@ extern int yyparse();
 extern int yydebug;
 extern bool debug_on;
 
-class SymbolType{
-    public:
-        enum typeEnum
-            {
-               FLOAT_T, VOID_T, CHAR_T, INT_T, POINTER, FUNCTION, ARRAY, BLOCK, PARAMETER
-            } type;
+//class SymbolType{
+//    public:
+//        enum SpecificType
 
-        int width;
-
-        SymbolType *arrayType;  // if the type is pointer/array, then arrayType contains the type of pointer/array
-
-        SymbolType* returnType;
-
-        SymbolType* paramType;
-
-        SymbolType(typeEnum _type, SymbolType * _arrayType = NULL, int _width= 1);
-        string toString(); // simply just convert the type to string
-        int getSize();
+//            {
+//               FLOAT_T, VOID_T, CHAR_T, INT_T, POINTER, FUNCTION, ARRAY, BLOCK, PARAMETER
+//            } type;
+//
+//        int width;
+//
+//        SymbolType *arrayType;  // if the type is pointer/array, then arrayType contains the type of pointer/array
+//
+//        SymbolType* returnType;
+//
+//        SymbolType* paramType;
+//
+//        SymbolType(SpecificType
+// _type, SymbolType * _arrayType = NULL, int _width= 1);
+//        string toString(); // simply just convert the type to string
+//        int getSize();
+//};
+class SymbolType {
+public:
+    // Base category (high-level classification)
+    enum BaseCategory {
+        PRIMITIVE,   // Basic data types
+        COMPOSITE,   // Types composed of other types
+        FUNCTIONAL,  // Function-related types
+        SPECIAL      // Special purpose types
+    };
+    
+    // Specific type (more detailed classification)
+    enum SpecificType {
+        // PRIMITIVE types
+        INT_T,    // Integer type
+        FLOAT_T,       // Floating-point type
+        CHAR_T,  // Character type
+        VOID_T,       // Void type
+        
+        // COMPOSITE types
+        POINTER,        // Pointer type
+        ARRAY,        // Array type
+        
+        // FUNCTIONAL types
+        FUNCTION,       // Function type
+        PARAMETER,      // Parameter type
+        
+        // SPECIAL types
+        BLOCK         // Block type
+    }type;
+    
+    BaseCategory baseCategory;
+    SpecificType specificType;
+    
+    int width;
+    SymbolType* arrayType;
+    SymbolType* returnType;
+    SymbolType* paramType;
+    
+    // Constructor takes specific type and derives the base category
+    SymbolType(SpecificType type, SymbolType* _arrayType = NULL, int _width = 1);
+    
+    // Helper method to determine base category from specific type
+    static BaseCategory deriveBaseCategory(SpecificType type);
+    
+    string toString();
+    int getSize();
 };
 
 class Symbol{
@@ -65,9 +114,11 @@ class Symbol{
 
         // SymbolType* parameters;
 
-        Symbol(string _name, SymbolType::typeEnum _type = SymbolType::INT_T, string _value = "");
+        Symbol(string _name, SymbolType::SpecificType
+ _type = SymbolType::INT_T, string _value = "");
         Symbol *update(SymbolType * _type);
-        Symbol *convert(SymbolType::typeEnum _type);
+        Symbol *convert(SymbolType::SpecificType
+ _type);
 };
 
 class SymbolTable{
@@ -101,7 +152,8 @@ class Array
 {
     public:
         Symbol *temp; 
-        enum typeEnum
+        enum SpecificType
+
         {
             OTHER,
             POINTER,
@@ -116,7 +168,8 @@ class Expression
 {
     public:
         Symbol *symbol;
-        enum typeEnum
+        enum SpecificType
+
         {
             NONBOOLEAN,
             BOOLEAN
@@ -142,7 +195,8 @@ list<int> makeList(int i);
 list<int> merge(list<int>, list<int>); 
 
 int nextInstruction();                              
-Symbol *gentemp(SymbolType::typeEnum, string = ""); 
+Symbol *gentemp(SymbolType::SpecificType
+, string = ""); 
 void changeTable(SymbolTable *);                    // changes the current symbol table to the given one
 
 bool typeCheck(Symbol *&s1, Symbol *&s2);       //same type symbols
@@ -155,7 +209,7 @@ string toString(float f);
 extern vector<Quad *> quadArray;
 extern SymbolTable *currentTable, *globalTable;
 extern Symbol *currentSymbol;
-extern SymbolType::typeEnum currentType;
+extern SymbolType::SpecificType currentType;
 extern int tableCount, temporaryCount;
 
 #endif
