@@ -87,172 +87,365 @@ string toString(float f)
 return to_string(f);
 }
 
-SymbolTable::SymbolTable(string name, SymbolTable *parent) : name(name), parent(parent) {}
+// SymbolTable::SymbolTable(string name, SymbolTable *parent) : name(name), parent(parent) {}
+//
+//
+// Symbol *SymbolTable::search(string name)
+// {
+//     // if symbol already present
+//     if(symbols.find(name) != symbols.end()){
+//         auto it1 = symbols.find(name);
+//         return &(it1->second);
+//     }
+//
+//     Symbol *ret_ptr = nullptr;
+//
+//     // recursively check if the symbol is present in it's parent symbol table
+//     if (parent != NULL)
+//         ret_ptr = parent->search(name);
+//
+//     // if not declared in any symbol table, then insert it as a new symbol
+//     if (this == currentTable && !ret_ptr)
+//     {
+//         ret_ptr = new Symbol(name);
+//         ret_ptr->category = Symbol::LOCAL;
+//         if(currentTable == globalTable){
+//             ret_ptr->category = Symbol::GLOBAL;
+//         }
+//         symbols.insert({name, *ret_ptr});
+//         return &(symbols.find(name)->second);
+//     }
+//     return ret_ptr;
+// }
+//
+// Symbol *SymbolTable::search1(string name)
+// {
+//
+//     if( symbols.find(name) != symbols.end() ){
+//         auto it1 = symbols.find(name);
+//         return &(it1->second);
+//     }
+//
+//     // Symbol *ret_ptr = nullptr;
+//
+//     // as for declaration no need to search the parent table
+//
+//     symbols.insert({name, *(new Symbol(name))});
+//     return &(symbols.find(name)->second);
+//     // return ret_ptr;
+// }
+//
+//
+//
+// void SymbolTable::calculateOffset()
+// {
+//     int offset;
+//     vector<SymbolTable *> nestedTables;
+//     // traversing over the symbol table
+//     for(auto &x: symbols){
+//
+//         if(x.first == symbols.begin()->first){
+//             x.second.offset = 0;
+//             if(x.second.category != Symbol::FUNCTION)
+//                 offset = x.second.size;
+//             else{
+//                 // x.second.type->type = SymbolType::FUNCTION;
+//                 x.second.size = 0;
+//                 offset = 0;
+//             }
+//         }else{
+//             x.second.offset = offset;
+//             if(x.second.category != Symbol::FUNCTION)
+//                 offset += x.second.size;
+//             else{
+//                 // x.second.type->type = SymbolType::FUNCTION;
+//                 x.second.size = 0;
+//             }
+//         }
+//         if(x.second.nestedTable){
+//             nestedTables.push_back(x.second.nestedTable);
+//         }
+//     }
+//
+//     for (auto &table : nestedTables)
+//     {
+//         table->calculateOffset();
+//     }
+// }
+//
+//
+// void SymbolTable::print()
+// {
+//     cout << string(140, '-') << endl;
+//     cout << "Symbol Table Name: " << setw(100)<< name << "Parent Name: " << ((parent) ? parent->name : "None") << endl;
+//     cout << string(140, '-') << endl;
+//     cout << setw(20) << "Name" << setw(40) << "Type" <<setw(20)<<"Category"<< setw(20) << "Initial Value" << setw(20) << "Offset" << setw(20) << "Size" << setw(20) << "Nested Table"
+//          << "\n\n";
+//
+//     // to store tables which are called in this currentTable
+//     vector<SymbolTable *> tovisit;
+//
+//     // traversing the currentSymbolTable
+//     for (auto &x : symbols)
+//     {
+//         cout << setw(20) << x.first;            // printing the name of the symbol
+//         fflush(stdout);
+//
+//         if(x.second.category != Symbol::FUNCTION)
+//             cout<<setw(40)<<x.second.type->toString();
+//         else{
+//             string tempstr = "(";
+//             // cout<<setw(40)<<x.second.type->toString();
+//             SymbolTable* temp = globalTable->search(x.first)->nestedTable;
+//             // cout<<"( ";
+//             bool chk1=false;;
+//             vector<string> vs1;
+//             for(auto y : temp->symbols){
+//                 if(y.second.category == Symbol::PARAMETER){
+//                     // tempstr += y.second.type->toString();
+//                     vs1.push_back(y.second.type->toString());
+//                     // tempstr += " x ";
+//                 }
+//             }
+//
+//             for(int i=0;i<vs1.size();i++){
+//                 tempstr += vs1[i];
+//                 if(i!=(vs1.size()-1)){
+//                     tempstr += " x ";
+//                 }
+//             }
+//             tempstr+=") --> ("+ x.second.type->toString()+")";
+//             if(vs1.size()){
+//                 chk1=true;
+//                 cout<<setw(40)<<tempstr;
+//             }else{
+//                 cout<<setw(40)<<x.second.type->toString();
+//             }
+//         }
+//
+//         cout<<setw(20);
+//         if(x.second.category == Symbol::LOCAL){
+//             cout<<"local";
+//         }else if(x.second.category == Symbol::GLOBAL){
+//             cout<<"global";
+//         }else if(x.second.category == Symbol::FUNCTION){
+//             cout<<"function";
+//         }else if(x.second.category == Symbol::PARAMETER){
+//             cout<<"parameter";
+//         }else if(x.second.category == Symbol::TEMPORARY){
+//             cout<<"temporary";
+//         }
+//
+//         cout << setw(20) << x.second.initialValue << setw(20) << x.second.offset << setw(20) << x.second.size;
+//         cout << setw(20) << (x.second.nestedTable ? x.second.nestedTable->name : "NULL") << endl;
+//         if (x.second.nestedTable)
+//         {
+//             tovisit.push_back(x.second.nestedTable);
+//         }
+//     }
+//     cout << string(140, '-') << endl;
+//     cout <<"\n\n";
+//
+//     // recursively print all symbol tables
+//     for (auto &table : tovisit)
+//     {
+//         table->print();
+//     }
+// }
+// Update constructor
+SymbolTable::SymbolTable(string _identifier, TableScope _scope, SymbolTable *_parent, int _nestingLevel) :
+    identifier(_identifier),
+    scope(_scope),
+    status(ACTIVE),
+    nestingLevel(_nestingLevel),
+    parentTable(_parent) {}
 
-
-Symbol *SymbolTable::search(string name)
-{
-    // if symbol already present
-    if(symbols.find(name) != symbols.end()){
-        auto it1 = symbols.find(name);
-        return &(it1->second);
+// Update lookupSymbol method (was search)
+Symbol *SymbolTable::lookupSymbol(string name) {
+    // If symbol already present in current table
+    if(entries.find(name) != entries.end()) {
+        auto it = entries.find(name);
+        return &(it->second);
     }
 
-    Symbol *ret_ptr = nullptr;
+    Symbol *foundSymbol = nullptr;
 
-    // recursively check if the symbol is present in it's parent symbol table
-    if (parent != NULL)
-        ret_ptr = parent->search(name);
+    // Recursively check if the symbol is present in parent symbol tables
+    if (parentTable != NULL)
+        foundSymbol = parentTable->lookupSymbol(name);
 
-    // if not declared in any symbol table, then insert it as a new symbol
-    if (this == currentTable && !ret_ptr)
-    {
-        ret_ptr = new Symbol(name);
-        ret_ptr->category = Symbol::LOCAL;
-        if(currentTable == globalTable){
-            ret_ptr->category = Symbol::GLOBAL;
-        }
-        symbols.insert({name, *ret_ptr});
-        return &(symbols.find(name)->second);
+    // If not found and we're in the current active table, create new symbol
+    if (this == currentTable && !foundSymbol) {
+        foundSymbol = new Symbol(name);
+        foundSymbol->category = (scope == GLOBAL_SCOPE) ? Symbol::GLOBAL : Symbol::LOCAL;
+        entries.insert({name, *foundSymbol});
+        return &(entries.find(name)->second);
     }
-    return ret_ptr;
+    return foundSymbol;
 }
 
-Symbol *SymbolTable::search1(string name)
-{
-    
-    if( symbols.find(name) != symbols.end() ){
-        auto it1 = symbols.find(name);
-        return &(it1->second);
+// Update lookupLocalSymbol method (was search1)
+Symbol *SymbolTable::lookupLocalSymbol(string name) {
+    // Only check the current table, don't recurse to parent
+    if(entries.find(name) != entries.end()) {
+        auto it = entries.find(name);
+        return &(it->second);
     }
 
-    // Symbol *ret_ptr = nullptr;
-
-    // as for declaration no need to search the parent table
-    
-    symbols.insert({name, *(new Symbol(name))});
-    return &(symbols.find(name)->second);
-    // return ret_ptr;
+    // Create new symbol in this table
+    entries.insert({name, *(new Symbol(name))});
+    return &(entries.find(name)->second);
 }
 
+// Update computeOffsets method (was calculateOffset)
+void SymbolTable::computeOffsets() {
+    int currentOffset = 0;
 
+    // Traverse entries in the symbol table
+    for(auto &entry : entries) {
+        Symbol &symbol = entry.second;
 
-void SymbolTable::calculateOffset()
-{
-    int offset;
-    vector<SymbolTable *> nestedTables;
-    // traversing over the symbol table
-    for(auto &x: symbols){
-        
-        if(x.first == symbols.begin()->first){
-            x.second.offset = 0;
-            if(x.second.category != Symbol::FUNCTION)
-                offset = x.second.size;
-            else{
-                // x.second.type->type = SymbolType::FUNCTION;
-                x.second.size = 0;
-                offset = 0;
+        // First symbol starts at offset 0
+        if(entry.first == entries.begin()->first) {
+            symbol.offset = 0;
+            if(symbol.category != Symbol::FUNCTION)
+                currentOffset = symbol.size;
+            else {
+                symbol.size = 0;
+                currentOffset = 0;
             }
-        }else{
-            x.second.offset = offset;
-            if(x.second.category != Symbol::FUNCTION)
-                offset += x.second.size;
-            else{
-                // x.second.type->type = SymbolType::FUNCTION;
-                x.second.size = 0;
+        } else {
+            symbol.offset = currentOffset;
+            if(symbol.category != Symbol::FUNCTION)
+                currentOffset += symbol.size;
+            else {
+                symbol.size = 0;
             }
         }
-        if(x.second.nestedTable){
-            nestedTables.push_back(x.second.nestedTable);
+
+        // Process nested table if any
+        if(symbol.nestedTable) {
+            symbol.nestedTable->computeOffsets();
         }
     }
 
-    for (auto &table : nestedTables)
-    {
-        table->calculateOffset();
+    // Process all child tables
+    for(auto &childTable : childTables) {
+        if(childTable) {
+            childTable->computeOffsets();
+        }
     }
 }
 
+// Update resetFunctionEntries method (was setFunctionToZero)
+void SymbolTable::resetFunctionEntries() {
+    // Implementation depends on your original code
+    // Generally resets function parameters/variables
+}
 
-void SymbolTable::print()
-{
+// Update displayTable method (was print)
+void SymbolTable::displayTable() {
     cout << string(140, '-') << endl;
-    cout << "Symbol Table Name: " << setw(100)<< name << "Parent Name: " << ((parent) ? parent->name : "None") << endl;
-    cout << string(140, '-') << endl;
-    cout << setw(20) << "Name" << setw(40) << "Type" <<setw(20)<<"Category"<< setw(20) << "Initial Value" << setw(20) << "Offset" << setw(20) << "Size" << setw(20) << "Nested Table"
-         << "\n\n";
-    
-    // to store tables which are called in this currentTable
-    vector<SymbolTable *> tovisit;
+       cout << "Symbol Table Name: " << setw(100)<< identifier << "Parent Name: " << ((parentTable) ? parentTable->identifier : "None") << endl;
+       cout << string(140, '-') << endl;
+       cout << setw(20) << "Name" << setw(40) << "Type" <<setw(20)<<"Category"<< setw(20) << "Initial Value" << setw(20) << "Offset" << setw(20) << "Size" << setw(20) << "Nested Table"
+            << "\n\n";
 
-    // traversing the currentSymbolTable
-    for (auto &x : symbols)
-    {
-        cout << setw(20) << x.first;            // printing the name of the symbol
-        fflush(stdout);
+       // to store tables which are called in this currentTable
+       vector<SymbolTable *> tovisit;
 
-        if(x.second.category != Symbol::FUNCTION)
-            cout<<setw(40)<<x.second.type->toString();
-        else{
-            string tempstr = "(";
-            // cout<<setw(40)<<x.second.type->toString();
-            SymbolTable* temp = globalTable->search(x.first)->nestedTable;
-            // cout<<"( ";
-            bool chk1=false;;
-            vector<string> vs1;
-            for(auto y : temp->symbols){
-                if(y.second.category == Symbol::PARAMETER){
-                    // tempstr += y.second.type->toString();
-                    vs1.push_back(y.second.type->toString());
-                    // tempstr += " x "; 
-                }
-            }
+       // traversing the currentSymbolTable
+       for (auto &x : entries)
+       {
+           cout << setw(20) << x.first;            // printing the name of the symbol
+           fflush(stdout);
 
-            for(int i=0;i<vs1.size();i++){
-                tempstr += vs1[i];
-                if(i!=(vs1.size()-1)){
-                    tempstr += " x ";
-                }
-            }
-            tempstr+=") --> ("+ x.second.type->toString()+")";
-            if(vs1.size()){
-                chk1=true;
-                cout<<setw(40)<<tempstr;
-            }else{
-                cout<<setw(40)<<x.second.type->toString();
-            }
-        }
+           if(x.second.category != Symbol::FUNCTION)
+               cout<<setw(40)<<x.second.type->toString();
+           else{
+               string tempstr = "(";
+               // cout<<setw(40)<<x.second.type->toString();
+               SymbolTable* temp = globalTable->lookupSymbol(x.first)->nestedTable;
+               // cout<<"( ";
+               bool chk1=false;;
+               vector<string> vs1;
+               for(auto y : temp->entries){
+                   if(y.second.category == Symbol::PARAMETER){
+                       // tempstr += y.second.type->toString();
+                       vs1.push_back(y.second.type->toString());
+                       // tempstr += " x ";
+                   }
+               }
 
-        cout<<setw(20);
-        if(x.second.category == Symbol::LOCAL){
-            cout<<"local";
-        }else if(x.second.category == Symbol::GLOBAL){
-            cout<<"global";
-        }else if(x.second.category == Symbol::FUNCTION){
-            cout<<"function";
-        }else if(x.second.category == Symbol::PARAMETER){
-            cout<<"parameter";
-        }else if(x.second.category == Symbol::TEMPORARY){
-            cout<<"temporary";
-        }
+               for(int i=0;i<vs1.size();i++){
+                   tempstr += vs1[i];
+                   if(i!=(vs1.size()-1)){
+                       tempstr += " x ";
+                   }
+               }
+               tempstr+=") --> ("+ x.second.type->toString()+")";
+               if(vs1.size()){
+                   chk1=true;
+                   cout<<setw(40)<<tempstr;
+               }else{
+                   cout<<setw(40)<<x.second.type->toString();
+               }
+           }
 
-        cout << setw(20) << x.second.initialValue << setw(20) << x.second.offset << setw(20) << x.second.size;
-        cout << setw(20) << (x.second.nestedTable ? x.second.nestedTable->name : "NULL") << endl;
-        if (x.second.nestedTable)
-        {
-            tovisit.push_back(x.second.nestedTable);
-        }
-    }
-    cout << string(140, '-') << endl;
-    cout <<"\n\n";
+           cout<<setw(20);
+           if(x.second.category == Symbol::LOCAL){
+               cout<<"local";
+           }else if(x.second.category == Symbol::GLOBAL){
+               cout<<"global";
+           }else if(x.second.category == Symbol::FUNCTION){
+               cout<<"function";
+           }else if(x.second.category == Symbol::PARAMETER){
+               cout<<"parameter";
+           }else if(x.second.category == Symbol::TEMPORARY){
+               cout<<"temporary";
+           }
 
-    // recursively print all symbol tables
-    for (auto &table : tovisit)
-    {
-        table->print();
-    }
+           cout << setw(20) << x.second.initialValue << setw(20) << x.second.offset << setw(20) << x.second.size;
+           cout << setw(20) << (x.second.nestedTable ? x.second.nestedTable->identifier : "NULL") << endl;
+           if (x.second.nestedTable)
+           {
+               tovisit.push_back(x.second.nestedTable);
+           }
+       }
+       cout << string(140, '-') << endl;
+       cout <<"\n\n";
+
+       // recursively print all symbol tables
+       for (auto &table : tovisit)
+       {
+           table->displayTable();
+       }
 }
 
+// Add new methods
+void SymbolTable::addChildTable(SymbolTable* child) {
+    childTables.push_back(child);
+    child->parentTable = this;
+    child->nestingLevel = this->nestingLevel + 1;
+}
+
+SymbolTable* SymbolTable::createChildTable(string identifier, TableScope scope) {
+    SymbolTable* child = new SymbolTable(identifier, scope, this, this->nestingLevel + 1);
+    childTables.push_back(child);
+    return child;
+}
+
+void SymbolTable::markComplete() {
+    this->status = COMPLETE;
+}
+
+bool SymbolTable::hasSymbol(string name) {
+    return entries.find(name) != entries.end();
+}
+
+int SymbolTable::getSymbolCount() {
+    return entries.size();
+}
 
 Symbol::Symbol(string name, SymbolType::SpecificType type, string init) : name(name), type(new SymbolType(type)), offset(0), nestedTable(NULL), initialValue(init), isFunction(false)
 {
@@ -438,7 +631,7 @@ Symbol *gentemp(SymbolType::SpecificType type, string intialValue)
 {
     Symbol *temp = new Symbol("t" + toString(temporaryCount++), type, intialValue);
     temp->category = Symbol::TEMPORARY;
-    currentTable->symbols.insert({temp->name, *temp});
+    currentTable->entries.insert({temp->name, *temp});
     return temp;
 }
 
@@ -511,8 +704,8 @@ int main()
 
     // globalTable->setFunctionToZero();
 
-    globalTable->calculateOffset();
-    globalTable->print();
+    globalTable->computeOffsets();
+    globalTable->displayTable();
 
     // Printing the Quads Array
     int idx = 1;

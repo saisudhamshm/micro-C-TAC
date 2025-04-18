@@ -988,7 +988,7 @@ declarator:
                         // $$ = $2->update();
                     }
                     else if( $2->type->type == SymbolType::FUNCTION){
-                        currentTable->search("return")->update($1);
+                        currentTable->lookupSymbol("return")->update($1);
                     }
                     else
                     {
@@ -1021,7 +1021,7 @@ change_scope_declaration:
                         }
                         else {
                             changeTable(currentSymbol->nestedTable);
-                            emit("label", currentTable->name);
+                            emit("label", currentTable->identifier);
                         }
                     }
 	            ;
@@ -1045,7 +1045,7 @@ direct_declarator:
                             yyinfo("direct_declarator => ID");
 
                             // forcefully creating a new entery inside this table
-                            $1 = currentTable->search1($1->name);
+                            $1 = currentTable->lookupLocalSymbol($1->name);
 
                             // whenever we see a declarator, then we set it's type to the last type seen by the lexer
                             $$ = $1->update(new SymbolType(currentType)); // update type to the last type seen
@@ -1056,7 +1056,7 @@ direct_declarator:
                             yyinfo("direct_declarator => ID [ assignment_expression ]");
 
                             // forcefully creating a new entery inside this table
-                            $1 = currentTable->search1($1->name);
+                            $1 = currentTable->lookupLocalSymbol($1->name);
 
                             SymbolType *it1 = $1->type, *it2 = NULL;
 
@@ -1078,19 +1078,19 @@ direct_declarator:
                             yyinfo("direct_declarator => ID ( parameter_list )");
 
                             // function declaration
-                            currentTable->name = $1->name;
+                            currentTable->identifier = $1->name;
 
                             $1->type->paramType = $4;
 
                             if($1->type->type != SymbolType::VOID_T) {
                                 // set type of return value
-                                currentTable->search("return")->update($1->type);
+                                currentTable->lookupSymbol("return")->update($1->type);
                             }
 
                             // move back to the global table and set the nested table for the function
                             $1->nestedTable = currentTable;
                             $1->category = Symbol::FUNCTION;
-                            currentTable->parent = globalTable;
+                            currentTable->parentTable = globalTable;
                             changeTable(globalTable);
                             currentSymbol = $$;
                         }
@@ -1099,18 +1099,18 @@ direct_declarator:
                             yyinfo("direct_declarator => ID ( )");
 
                             // same as the previous rule
-                            currentTable->name = $1->name;
+                            currentTable->identifier = $1->name;
                             // $1->update(new SymbolType(currentType));
 
                             if($1->type->type != SymbolType::VOID_T) {
                                 // set type of return value
-                                currentTable->search("return")->update($1->type);
+                                currentTable->lookupSymbol("return")->update($1->type);
                             }
 
                             // move back to the global table and set the nested table for the function
                             $1->nestedTable = currentTable;
                             $1->category = Symbol::FUNCTION;
-                            currentTable->parent = globalTable;
+                            currentTable->parentTable = globalTable;
                             changeTable(globalTable);
                             currentSymbol = $$;
                         }
@@ -1223,10 +1223,11 @@ This will create nested symbol tables
 
 change_block:
                     {
-                        string name = currentTable->name + "_" + toString(tableCount);
+                        string name = currentTable->identifier + "_" + toString(tableCount);
                         tableCount++;
-                        Symbol *s = currentTable->search(name); // create new entry in symbol table
-                        s->nestedTable = new SymbolTable(name, currentTable);
+                        Symbol *s = currentTable->lookupSymbol(name); // create new entry in symbol table
+                        s->nestedTable = new SymbolTable(name,SymbolTable::FUNCTION_SCOPE
+ ,currentTable);
                         s->type = new SymbolType(SymbolType::BLOCK);
                         currentSymbol = s;
                     }
@@ -1237,7 +1238,7 @@ compound_statement:
                         {
                             yyinfo("compound_statement => { block_item_list_opt }");
                             $$ = $4;
-                            changeTable(currentTable->parent); // block over, move back to the parent table
+                            changeTable(currentTable->parentTable); // block over, move back to the parent table
                         }
                     ;
 
@@ -1449,7 +1450,7 @@ function_definition:  // TODO:
                             yyinfo("function_definition => type_specifier declarator change_scope BEG block_item_list_opt END");
                             tableCount = 0;
                             if($2->type->type != SymbolType::VOID_T){
-                                currentTable->search("return")->update($2->type);
+                                currentTable->lookupSymbol("return")->update($2->type);
                             }
                             $2->isFunction = true;
                             // $3->type->returnType->type= $2;

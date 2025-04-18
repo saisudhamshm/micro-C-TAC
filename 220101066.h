@@ -121,18 +121,64 @@ class Symbol{
  _type);
 };
 
-class SymbolTable{
-    public:
-        string name;
-        map<string, Symbol> symbols;
-        SymbolTable *parent;
+//class SymbolTable{
+//    public:
+//        string name;
+//        map<string, Symbol> symbols;
+//        SymbolTable *parent;
+//
+//        SymbolTable(string _name= "NULL", SymbolTable *_parent = NULL);
+//        Symbol *search(string);
+//        Symbol *search1(string);
+//        void setFunctionToZero();
+//        void calculateOffset();
+//        void print();
+//};
 
-        SymbolTable(string _name= "NULL", SymbolTable *_parent = NULL);
-        Symbol *search(string);
-        Symbol *search1(string);
-        void setFunctionToZero();
-        void calculateOffset();
-        void print();
+class SymbolTable {
+public:
+    // New enum types
+    enum TableScope {
+        GLOBAL_SCOPE,
+        FUNCTION_SCOPE,
+        BLOCK_SCOPE,
+        CLASS_SCOPE  // For future extension
+    };
+
+    enum TableStatus {
+        ACTIVE,      // Currently in use
+        INACTIVE,    // Not currently in scope
+        COMPLETE     // Fully processed
+    };
+
+    // Renamed and new fields
+    string identifier;           // Changed from 'name'
+    TableScope scope;            // New field
+    TableStatus status;          // New field
+    int nestingLevel;            // New field
+    map<string, Symbol> entries; // Changed from 'symbols'
+    SymbolTable *parentTable;    // Changed from 'parent'
+    vector<SymbolTable*> childTables; // New field
+
+    // Updated constructor
+    SymbolTable(string _identifier = "NULL",
+                TableScope _scope = GLOBAL_SCOPE,
+                SymbolTable *_parent = NULL,
+                int _nestingLevel = 0);
+
+    // Renamed and new methods
+    Symbol *lookupSymbol(string name);      // Changed from 'search'
+    Symbol *lookupLocalSymbol(string name); // Changed from 'search1'
+    void resetFunctionEntries();            // Changed from 'setFunctionToZero'
+    void computeOffsets();                  // Changed from 'calculateOffset'
+    void displayTable();                    // Changed from 'print'
+
+    // New utility methods
+    void addChildTable(SymbolTable* child);
+    SymbolTable* createChildTable(string identifier, TableScope scope);
+    int getSymbolCount();
+    bool hasSymbol(string name);
+    void markComplete();
 };
 
 class Quad{

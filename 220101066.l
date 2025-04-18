@@ -71,7 +71,7 @@ WS						[ \t\n]
 {BEG}                           {return BEG;}
 {END}                           {return END;}
 
-{ID}							{yylval.symbol = currentTable -> search(yytext); return ID;}
+{ID}							{yylval.symbol = currentTable -> lookupSymbol(yytext); return ID;}
 
 {INT_CONST}						{yylval.intVal = atoi(yytext); return INT_CONST;}
 {CHAR_CONST}					{yylval.charVal = strdup(yytext); return CHAR_CONST;}
