@@ -8,19 +8,7 @@
 %option yylineno
 %option noyywrap
 
-/* Keywords */
-CHAR					"char"
-ELSE					"else"
-FOR                     "for"
-IF						"if"
-INT                     "integer"
-RETURN					"return"
-VOID					"void"
-FLOAT                    "float"
-WHILE                     "while"
-DO                       "do"
-BEG                       "begin"
-END                        "end"
+
 KEYWORD                "char"|"else"|"for"|"if"|"integer"|"return"|"void"|"float"|"while"|"do"|"begin"|"end"
 PUNC                    "["|"]"|"("|")"|"->"|"!"|"+"|"-"|"*"|"/"|"|"|"<<"|">>"|"<"|">"|"<="|">="|"^"|"||"|"&&"|"=="|"&"|"%"|":"|";"|"?"|"="|","|"!="
 

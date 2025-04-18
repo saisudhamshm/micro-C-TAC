@@ -419,11 +419,15 @@ void emit(string op, string result, int arg1, string arg2)
 }
 
 
-void backpatch(list<int> list_, int addr)
+void backpatch(list<int> listi, int addr)
 {
-    for (auto &i : list_)
+    for (const int i : listi)
     {
-          intermediateCode.getTAC(i-1)->result = toString(addr);
+        auto tac = intermediateCode.getTAC(i - 1);
+        if (tac)
+        {
+            tac->result = toString(addr);
+        }
     }
 }
 
