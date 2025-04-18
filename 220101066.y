@@ -1226,7 +1226,7 @@ change_block:
                         string name = currentTable->identifier + "_" + toString(tableCount);
                         tableCount++;
                         Symbol *s = currentTable->lookupSymbol(name); // create new entry in symbol table
-                        s->nestedTable = new SymbolTable(name,SymbolTable::FUNCTION_SCOPE
+                        s->nestedTable = new SymbolTable(name,SymbolTable::BLOCK_SCOPE
  ,currentTable);
                         s->type = new SymbolType(SymbolType::BLOCK);
                         currentSymbol = s;

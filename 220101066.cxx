@@ -690,7 +690,8 @@ int main()
     // initializing tablecount and tempCount
     tableCount = 0;             
     temporaryCount = 0;
-    globalTable = new SymbolTable("global");
+    globalTable = new SymbolTable("global",SymbolTable::GLOBAL_SCOPE
+,NULL);
 
     currentTable = globalTable;
     
