@@ -9,7 +9,7 @@
 #include <functional>
 #include <string>
 #include <string.h>
-
+#include <set>
 using namespace std;
 
 class Symbol;
@@ -192,6 +192,9 @@ class Quad{
         Quad(string _result, string _arg1, string _op = "=", string _arg2 = "");
         Quad(string _result, int _arg1, string _op = "=", string _arg2 = "");
         void print(int idx);
+        bool isArithmeticOp(const string& op);
+        bool isComparisonOp(const string& op);
+        bool isBitwiseOp(const string& op);
 };
 
 class Array

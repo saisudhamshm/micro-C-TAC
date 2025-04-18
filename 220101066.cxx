@@ -483,76 +483,62 @@ Quad::Quad(string result, int arg1, string op, string arg2) : result(result), op
 
 
 
-void Quad::print(int idx)
-{
+void Quad::print(int idx) {
+    // Print the raw quad information with consistent spacing
+    cout << setw(20) << op << setw(20) << arg1 << setw(20)
+         << arg2 << setw(20) << result << setw(20) << idx;
 
-    cout<<setw(20)<<op<<setw(20)<<arg1<<setw(20)<<arg2<<setw(20)<<result<<setw(20)<<idx;
-
-    if (op == "=")
-    {
+    // Format and print human-readable representation based on operation type
+    if (op == "=") {
         cout << "\t" << result << " = " << arg1 << endl;
-    }
-    else if (op == "goto")
-    {
+    } else if (op == "goto") {
         cout << "\tgoto " << result << endl;
-    }
-    else if (op == "return")
-    {
+    } else if (op == "return") {
         cout << "\treturn " << result << endl;
-    }
-    else if (op == "call")
-    {
+    } else if (op == "call") {
         cout << "\t" << result << " = call " << arg1 << ", " << arg2 << endl;
-    }
-    else if (op == "param")
-    {
-        cout << "\t" << "param " << result << endl;
-    }
-    else if (op == "label")
-    {
+    } else if (op == "param") {
+        cout << "\tparam " << result << endl;
+    } else if (op == "label") {
         cout << result << endl;
-    }
-    else if (op == "=[]")
-    {
+    } else if (op == "=[]") {
         cout << "\t" << result << " = " << arg1 << "[" << arg2 << "]" << endl;
-    }
-    else if (op == "[]=")
-    {
+    } else if (op == "[]=") {
         cout << "\t" << result << "[" << arg1 << "] = " << arg2 << endl;
-    }
-    else if (op == "+" or op == "-" or op == "*" or op == "/" or op == "%" or op == "<<" or op == ">>")
-    {
+    } else if (isArithmeticOp(op)) {
         cout << "\t" << result << " = " << arg1 << " " << op << " " << arg2 << endl;
-    }
-    else if (op == "&" or op == "|" or op == "^")
-    {
+    } else if (isBitwiseOp(op)) {
         cout << "\t" << result << " = " << arg1 << " " << op << " " << arg2 << endl;
-    }
-    else if (op == "==" or op == "!=" or op == "<" or op == ">" or op == "<=" or op == ">=")
-    {
+    } else if (isComparisonOp(op)) {
         cout << "\tif " << arg1 << " " << op << " " << arg2 << " goto " << result << endl;
-    }
-    else if (op == "=&" or op == "=*")
-    {
+    } else if (op == "=&" || op == "=*") {
         cout << "\t" << result << " " << op[0] << " " << op[1] << arg1 << endl;
-    }
-    else if (op == "*=")
-    {
+    } else if (op == "*=") {
         cout << "\t*" << result << " = " << arg1 << endl;
-    }
-    else if (op == "=-")
-    {
+    } else if (op == "=-") {
         cout << "\t" << result << " = - " << arg1 << endl;
-    }
-    else if (op == "!")
-    {
+    } else if (op == "!") {
         cout << "\t" << result << " = ! " << arg1 << endl;
-    }
-    else
-    {
+    } else {
         cout << op << arg1 << arg2 << result << endl;
         cout << "INVALID OPERATOR\n";
     }
+}
+
+// Helper methods to categorize operators
+bool Quad::isArithmeticOp(const string& op) {
+    static const set<string> arithmeticOps = {"+", "-", "*", "/", "%", "<<", ">>"};
+    return arithmeticOps.find(op) != arithmeticOps.end();
+}
+
+bool Quad::isBitwiseOp(const string& op) {
+    static const set<string> bitwiseOps = {"&", "|", "^"};
+    return bitwiseOps.find(op) != bitwiseOps.end();
+}
+
+bool Quad::isComparisonOp(const string& op) {
+    static const set<string> comparisonOps = {"==", "!=", "<", ">", "<=", ">="};
+    return comparisonOps.find(op) != comparisonOps.end();
 }
 
 
