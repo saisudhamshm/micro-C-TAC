@@ -1,41 +1,41 @@
 #include "220101066.h"
-vector<Quad *> quadArray;
+vector<TAC *> TACArray;
 SymbolTable *currentTable, *globalTable, *parentTable;
 Symbol *currentSymbol;
 SymbolType::SpecificType currentType;
 int tableCount, temporaryCount;
 
-// In 220101066.cxx (replacing the current quadArray declaration)
-QuadContainer intermediateCode;
+// In 220101066.cxx (replacing the current TACArray declaration)
+TACContainer intermediateCode;
 
-QuadContainer::QuadContainer() : currentIndex(0) {}
+TACContainer::TACContainer() : currentIndex(0) {}
 
-void QuadContainer::addQuad(Quad* quad) {
-    quads.push_back(quad);
+void TACContainer::addTAC(TAC* TAC) {
+    TACs.push_back(TAC);
 }
 
-Quad* QuadContainer::getQuad(int index) {
-    if (index >= 0 && index < quads.size()) {
-        return quads[index];
+TAC* TACContainer::getTAC(int index) {
+    if (index >= 0 && index < TACs.size()) {
+        return TACs[index];
     }
     return nullptr;
 }
 
-int QuadContainer::size() const {
-    return quads.size();
+int TACContainer::size() const {
+    return TACs.size();
 }
 
-void QuadContainer::optimize() {
+void TACContainer::optimize() {
     // You can implement optimization logic here
-    // like removing redundant quads, etc.
+    // like removing redundant TACs, etc.
 }
 
-vector<Quad*>::iterator QuadContainer::begin() {
-    return quads.begin();
+vector<TAC*>::iterator TACContainer::begin() {
+    return TACs.begin();
 }
 
-vector<Quad*>::iterator QuadContainer::end() {
-    return quads.end();
+vector<TAC*>::iterator TACContainer::end() {
+    return TACs.end();
 }
 
 
@@ -120,172 +120,7 @@ string toString(float f)
 return to_string(f);
 }
 
-// SymbolTable::SymbolTable(string name, SymbolTable *parent) : name(name), parent(parent) {}
-//
-//
-// Symbol *SymbolTable::search(string name)
-// {
-//     // if symbol already present
-//     if(symbols.find(name) != symbols.end()){
-//         auto it1 = symbols.find(name);
-//         return &(it1->second);
-//     }
-//
-//     Symbol *ret_ptr = nullptr;
-//
-//     // recursively check if the symbol is present in it's parent symbol table
-//     if (parent != NULL)
-//         ret_ptr = parent->search(name);
-//
-//     // if not declared in any symbol table, then insert it as a new symbol
-//     if (this == currentTable && !ret_ptr)
-//     {
-//         ret_ptr = new Symbol(name);
-//         ret_ptr->category = Symbol::LOCAL;
-//         if(currentTable == globalTable){
-//             ret_ptr->category = Symbol::GLOBAL;
-//         }
-//         symbols.insert({name, *ret_ptr});
-//         return &(symbols.find(name)->second);
-//     }
-//     return ret_ptr;
-// }
-//
-// Symbol *SymbolTable::search1(string name)
-// {
-//
-//     if( symbols.find(name) != symbols.end() ){
-//         auto it1 = symbols.find(name);
-//         return &(it1->second);
-//     }
-//
-//     // Symbol *ret_ptr = nullptr;
-//
-//     // as for declaration no need to search the parent table
-//
-//     symbols.insert({name, *(new Symbol(name))});
-//     return &(symbols.find(name)->second);
-//     // return ret_ptr;
-// }
-//
-//
-//
-// void SymbolTable::calculateOffset()
-// {
-//     int offset;
-//     vector<SymbolTable *> nestedTables;
-//     // traversing over the symbol table
-//     for(auto &x: symbols){
-//
-//         if(x.first == symbols.begin()->first){
-//             x.second.offset = 0;
-//             if(x.second.category != Symbol::FUNCTION)
-//                 offset = x.second.size;
-//             else{
-//                 // x.second.type->type = SymbolType::FUNCTION;
-//                 x.second.size = 0;
-//                 offset = 0;
-//             }
-//         }else{
-//             x.second.offset = offset;
-//             if(x.second.category != Symbol::FUNCTION)
-//                 offset += x.second.size;
-//             else{
-//                 // x.second.type->type = SymbolType::FUNCTION;
-//                 x.second.size = 0;
-//             }
-//         }
-//         if(x.second.nestedTable){
-//             nestedTables.push_back(x.second.nestedTable);
-//         }
-//     }
-//
-//     for (auto &table : nestedTables)
-//     {
-//         table->calculateOffset();
-//     }
-// }
-//
-//
-// void SymbolTable::print()
-// {
-//     cout << string(140, '-') << endl;
-//     cout << "Symbol Table Name: " << setw(100)<< name << "Parent Name: " << ((parent) ? parent->name : "None") << endl;
-//     cout << string(140, '-') << endl;
-//     cout << setw(20) << "Name" << setw(40) << "Type" <<setw(20)<<"Category"<< setw(20) << "Initial Value" << setw(20) << "Offset" << setw(20) << "Size" << setw(20) << "Nested Table"
-//          << "\n\n";
-//
-//     // to store tables which are called in this currentTable
-//     vector<SymbolTable *> tovisit;
-//
-//     // traversing the currentSymbolTable
-//     for (auto &x : symbols)
-//     {
-//         cout << setw(20) << x.first;            // printing the name of the symbol
-//         fflush(stdout);
-//
-//         if(x.second.category != Symbol::FUNCTION)
-//             cout<<setw(40)<<x.second.type->toString();
-//         else{
-//             string tempstr = "(";
-//             // cout<<setw(40)<<x.second.type->toString();
-//             SymbolTable* temp = globalTable->search(x.first)->nestedTable;
-//             // cout<<"( ";
-//             bool chk1=false;;
-//             vector<string> vs1;
-//             for(auto y : temp->symbols){
-//                 if(y.second.category == Symbol::PARAMETER){
-//                     // tempstr += y.second.type->toString();
-//                     vs1.push_back(y.second.type->toString());
-//                     // tempstr += " x ";
-//                 }
-//             }
-//
-//             for(int i=0;i<vs1.size();i++){
-//                 tempstr += vs1[i];
-//                 if(i!=(vs1.size()-1)){
-//                     tempstr += " x ";
-//                 }
-//             }
-//             tempstr+=") --> ("+ x.second.type->toString()+")";
-//             if(vs1.size()){
-//                 chk1=true;
-//                 cout<<setw(40)<<tempstr;
-//             }else{
-//                 cout<<setw(40)<<x.second.type->toString();
-//             }
-//         }
-//
-//         cout<<setw(20);
-//         if(x.second.category == Symbol::LOCAL){
-//             cout<<"local";
-//         }else if(x.second.category == Symbol::GLOBAL){
-//             cout<<"global";
-//         }else if(x.second.category == Symbol::FUNCTION){
-//             cout<<"function";
-//         }else if(x.second.category == Symbol::PARAMETER){
-//             cout<<"parameter";
-//         }else if(x.second.category == Symbol::TEMPORARY){
-//             cout<<"temporary";
-//         }
-//
-//         cout << setw(20) << x.second.initialValue << setw(20) << x.second.offset << setw(20) << x.second.size;
-//         cout << setw(20) << (x.second.nestedTable ? x.second.nestedTable->name : "NULL") << endl;
-//         if (x.second.nestedTable)
-//         {
-//             tovisit.push_back(x.second.nestedTable);
-//         }
-//     }
-//     cout << string(140, '-') << endl;
-//     cout <<"\n\n";
-//
-//     // recursively print all symbol tables
-//     for (auto &table : tovisit)
-//     {
-//         table->print();
-//     }
-// }
-// Update constructor
+
 SymbolTable::SymbolTable(string _identifier, TableScope _scope, SymbolTable *_parent, int _nestingLevel) :
     identifier(_identifier),
     scope(_scope),
@@ -317,7 +152,7 @@ Symbol *SymbolTable::lookupSymbol(string name) {
     return foundSymbol;
 }
 
-// Update lookupLocalSymbol method (was search1)
+
 Symbol *SymbolTable::lookupLocalSymbol(string name) {
     // Only check the current table, don't recurse to parent
     if(entries.find(name) != entries.end()) {
@@ -330,7 +165,7 @@ Symbol *SymbolTable::lookupLocalSymbol(string name) {
     return &(entries.find(name)->second);
 }
 
-// Update computeOffsets method (was calculateOffset)
+
 void SymbolTable::computeOffsets() {
     int currentOffset = 0;
 
@@ -370,11 +205,6 @@ void SymbolTable::computeOffsets() {
     }
 }
 
-// Update resetFunctionEntries method (was setFunctionToZero)
-void SymbolTable::resetFunctionEntries() {
-    // Implementation depends on your original code
-    // Generally resets function parameters/variables
-}
 
 // Update displayTable method (was print)
 void SymbolTable::displayTable() {
@@ -455,7 +285,7 @@ void SymbolTable::displayTable() {
        }
 }
 
-// Add new methods
+
 void SymbolTable::addChildTable(SymbolTable* child) {
     childTables.push_back(child);
     child->parentTable = this;
@@ -510,14 +340,14 @@ Symbol *Symbol::convert(SymbolType::SpecificType targetType)
 }
 
 
-Quad::Quad(string result, string arg1, string op, string arg2) : result(result), op(op), arg1(arg1), arg2(arg2) {}
+TAC::TAC(string result, string arg1, string op, string arg2) : result(result), op(op), arg1(arg1), arg2(arg2) {}
 
-Quad::Quad(string result, int arg1, string op, string arg2) : result(result), op(op), arg1(toString(arg1)), arg2(arg2) {}
+TAC::TAC(string result, int arg1, string op, string arg2) : result(result), op(op), arg1(toString(arg1)), arg2(arg2) {}
 
 
 
-void Quad::print(int idx) {
-    // Print the raw quad information with consistent spacing
+void TAC::print(int idx) {
+    // Print the raw TAC information with consistent spacing
     cout << setw(20) << op << setw(20) << arg1 << setw(20)
          << arg2 << setw(20) << result << setw(20) << idx;
 
@@ -559,17 +389,17 @@ void Quad::print(int idx) {
 }
 
 // Helper methods to categorize operators
-bool Quad::isArithmeticOp(const string& op) {
+bool TAC::isArithmeticOp(const string& op) {
     static const set<string> arithmeticOps = {"+", "-", "*", "/", "%", "<<", ">>"};
     return arithmeticOps.find(op) != arithmeticOps.end();
 }
 
-bool Quad::isBitwiseOp(const string& op) {
+bool TAC::isBitwiseOp(const string& op) {
     static const set<string> bitwiseOps = {"&", "|", "^"};
     return bitwiseOps.find(op) != bitwiseOps.end();
 }
 
-bool Quad::isComparisonOp(const string& op) {
+bool TAC::isComparisonOp(const string& op) {
     static const set<string> comparisonOps = {"==", "!=", "<", ">", "<=", ">="};
     return comparisonOps.find(op) != comparisonOps.end();
 }
@@ -577,15 +407,15 @@ bool Quad::isComparisonOp(const string& op) {
 
 void emit(string op, string result, string arg1, string arg2)
 {
-    Quad *q = new Quad(result, arg1, op, arg2);
-    intermediateCode.addQuad(q);
+    TAC *q = new TAC(result, arg1, op, arg2);
+    intermediateCode.addTAC(q);
 }
 
 
 void emit(string op, string result, int arg1, string arg2)
 {
-    Quad *q = new Quad(result, arg1, op, arg2);
-    intermediateCode.addQuad(q);
+    TAC *q = new TAC(result, arg1, op, arg2);
+    intermediateCode.addTAC(q);
 }
 
 
@@ -593,7 +423,7 @@ void backpatch(list<int> list_, int addr)
 {
     for (auto &i : list_)
     {
-          intermediateCode.getQuad(i-1)->result = toString(addr);
+          intermediateCode.getTAC(i-1)->result = toString(addr);
     }
 }
 
@@ -715,10 +545,7 @@ int main()
     currentTable = globalTable;
     
     cout << left;
-    // bool debug_on;
-    // debug_on = 1;
 
-    // yydebug = 1;
 
     yyparse();      // calling the parser
 
@@ -727,11 +554,11 @@ int main()
     globalTable->computeOffsets();
     globalTable->displayTable();
 
-    // Printing the Quads Array
+    // Printing the TACs Array
     int idx = 1;
 
     cout << string(140, '=') << endl;
-    cout << string(30,' ') << "Quad Array" << endl;
+    cout << string(30,' ') << "TAC Array" << endl;
     cout << string(140, '=') << endl;
 
     cout<<setw(20)<<"Op"<<setw(20)<<"arg1"<<setw(20)<<"arg2"<<setw(20)<<"result"<<setw(20)<<"Index"<<setw(20)<<"Code in text\n";

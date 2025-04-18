@@ -15,36 +15,16 @@ using namespace std;
 class Symbol;
 class SymbolType;
 class SymbolTable;
-class Quad;
+class TAC;
 class Array;
 class Expression;
 class Statement;
 
 extern int yyparse();
-extern int yydebug;
-extern bool debug_on;
 
-//class SymbolType{
-//    public:
-//        enum SpecificType
 
-//            {
-//               FLOAT_T, VOID_T, CHAR_T, INT_T, POINTER, FUNCTION, ARRAY, BLOCK, PARAMETER
-//            } type;
-//
-//        int width;
-//
-//        SymbolType *arrayType;  // if the type is pointer/array, then arrayType contains the type of pointer/array
-//
-//        SymbolType* returnType;
-//
-//        SymbolType* paramType;
-//
-//        SymbolType(SpecificType
-// _type, SymbolType * _arrayType = NULL, int _width= 1);
-//        string toString(); // simply just convert the type to string
-//        int getSize();
-//};
+
+
 class SymbolType {
 public:
     // Base category (high-level classification)
@@ -121,19 +101,7 @@ class Symbol{
  _type);
 };
 
-//class SymbolTable{
-//    public:
-//        string name;
-//        map<string, Symbol> symbols;
-//        SymbolTable *parent;
-//
-//        SymbolTable(string _name= "NULL", SymbolTable *_parent = NULL);
-//        Symbol *search(string);
-//        Symbol *search1(string);
-//        void setFunctionToZero();
-//        void calculateOffset();
-//        void print();
-//};
+
 
 class SymbolTable {
 public:
@@ -151,29 +119,28 @@ public:
         COMPLETE     // Fully processed
     };
 
-    // Renamed and new fields
-    string identifier;           // Changed from 'name'
-    TableScope scope;            // New field
-    TableStatus status;          // New field
-    int nestingLevel;            // New field
-    map<string, Symbol> entries; // Changed from 'symbols'
-    SymbolTable *parentTable;    // Changed from 'parent'
-    vector<SymbolTable*> childTables; // New field
 
-    // Updated constructor
+    string identifier;
+    TableScope scope;
+    TableStatus status;
+    int nestingLevel;
+    map<string, Symbol> entries;
+    SymbolTable *parentTable;
+    vector<SymbolTable*> childTables;
+
     SymbolTable(string _identifier = "NULL",
                 TableScope _scope = GLOBAL_SCOPE,
                 SymbolTable *_parent = NULL,
                 int _nestingLevel = 0);
 
-    // Renamed and new methods
-    Symbol *lookupSymbol(string name);      // Changed from 'search'
-    Symbol *lookupLocalSymbol(string name); // Changed from 'search1'
-    void resetFunctionEntries();            // Changed from 'setFunctionToZero'
-    void computeOffsets();                  // Changed from 'calculateOffset'
-    void displayTable();                    // Changed from 'print'
 
-    // New utility methods
+    Symbol *lookupSymbol(string name);
+    Symbol *lookupLocalSymbol(string name);
+    void resetFunctionEntries();
+    void computeOffsets();
+    void displayTable();
+
+
     void addChildTable(SymbolTable* child);
     SymbolTable* createChildTable(string identifier, TableScope scope);
     int getSymbolCount();
@@ -181,7 +148,7 @@ public:
     void markComplete();
 };
 
-class Quad{
+class TAC{
 
     public:
         string result;
@@ -189,30 +156,30 @@ class Quad{
         string op;
         string arg2;
         
-        Quad(string _result, string _arg1, string _op = "=", string _arg2 = "");
-        Quad(string _result, int _arg1, string _op = "=", string _arg2 = "");
+        TAC(string _result, string _arg1, string _op = "=", string _arg2 = "");
+        TAC(string _result, int _arg1, string _op = "=", string _arg2 = "");
         void print(int idx);
         bool isArithmeticOp(const string& op);
         bool isComparisonOp(const string& op);
         bool isBitwiseOp(const string& op);
 };
-// In 220101066.h
-class QuadContainer {
+
+class TACContainer {
 private:
-    vector<Quad*> quads;
+    vector<TAC*> TACs;
     int currentIndex;
 
 public:
-    QuadContainer();
-    void addQuad(Quad* quad);
-    Quad* getQuad(int index);
+    TACContainer();
+    void addTAC(TAC* TAC);
+    TAC* getTAC(int index);
     int size() const;
     void optimize();
-    vector<Quad*>::iterator begin();
-    vector<Quad*>::iterator end();
+    vector<TAC*>::iterator begin();
+    vector<TAC*>::iterator end();
 };
 
-extern QuadContainer intermediateCode;
+extern TACContainer intermediateCode;
 class Array
 {
     public:
@@ -262,16 +229,16 @@ list<int> merge(list<int>, list<int>);
 int nextInstruction();                              
 Symbol *gentemp(SymbolType::SpecificType
 , string = ""); 
-void changeTable(SymbolTable *);                    // changes the current symbol table to the given one
+void changeTable(SymbolTable *);
 
-bool typeCheck(Symbol *&s1, Symbol *&s2);       //same type symbols
+bool typeCheck(Symbol *&s1, Symbol *&s2);
 
 
 string toString(int i);
 string toString(char c);
 string toString(float f);
 
-//extern vector<Quad *> quadArray;
+//extern vector<TAC *> TACArray;
 extern SymbolTable *currentTable, *globalTable;
 extern Symbol *currentSymbol;
 extern SymbolType::SpecificType currentType;
