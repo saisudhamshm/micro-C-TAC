@@ -5,6 +5,39 @@ Symbol *currentSymbol;
 SymbolType::SpecificType currentType;
 int tableCount, temporaryCount;
 
+// In 220101066.cxx (replacing the current quadArray declaration)
+QuadContainer intermediateCode;
+
+QuadContainer::QuadContainer() : currentIndex(0) {}
+
+void QuadContainer::addQuad(Quad* quad) {
+    quads.push_back(quad);
+}
+
+Quad* QuadContainer::getQuad(int index) {
+    if (index >= 0 && index < quads.size()) {
+        return quads[index];
+    }
+    return nullptr;
+}
+
+int QuadContainer::size() const {
+    return quads.size();
+}
+
+void QuadContainer::optimize() {
+    // You can implement optimization logic here
+    // like removing redundant quads, etc.
+}
+
+vector<Quad*>::iterator QuadContainer::begin() {
+    return quads.begin();
+}
+
+vector<Quad*>::iterator QuadContainer::end() {
+    return quads.end();
+}
+
 
 SymbolType::SymbolType(SpecificType type, SymbolType* _arrayType, int _width) : 
     specificType(type), 
@@ -545,14 +578,14 @@ bool Quad::isComparisonOp(const string& op) {
 void emit(string op, string result, string arg1, string arg2)
 {
     Quad *q = new Quad(result, arg1, op, arg2);
-    quadArray.push_back(q);
+    intermediateCode.addQuad(q);
 }
 
 
 void emit(string op, string result, int arg1, string arg2)
 {
     Quad *q = new Quad(result, arg1, op, arg2);
-    quadArray.push_back(q);
+    intermediateCode.addQuad(q);
 }
 
 
@@ -560,7 +593,7 @@ void backpatch(list<int> list_, int addr)
 {
     for (auto &i : list_)
     {
-        quadArray[i - 1]->result = toString(addr);
+          intermediateCode.getQuad(i-1)->result = toString(addr);
     }
 }
 
@@ -609,7 +642,7 @@ void Expression::toBool()
 
 int nextInstruction()
 {
-    return quadArray.size() + 1;
+    return intermediateCode.size() + 1;
 }
 
 
@@ -704,11 +737,11 @@ int main()
     cout<<setw(20)<<"Op"<<setw(20)<<"arg1"<<setw(20)<<"arg2"<<setw(20)<<"result"<<setw(20)<<"Index"<<setw(20)<<"Code in text\n";
     cout<<setw(0) << string(140, '-') << endl;   
 
-    for (auto it : quadArray)
-    {
-        // cout << setw(4) << ins++ << ": ";
-        cout<<setw(20);
-        it->print(idx++);
-    }
+   for (auto it = intermediateCode.begin(); it != intermediateCode.end(); it++)
+   {
+       // cout << setw(4) << ins++ << ": ";
+       cout << setw(20);
+       (*it)->print(idx++);
+   }
     return 0;
 }

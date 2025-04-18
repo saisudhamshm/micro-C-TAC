@@ -196,7 +196,23 @@ class Quad{
         bool isComparisonOp(const string& op);
         bool isBitwiseOp(const string& op);
 };
+// In 220101066.h
+class QuadContainer {
+private:
+    vector<Quad*> quads;
+    int currentIndex;
 
+public:
+    QuadContainer();
+    void addQuad(Quad* quad);
+    Quad* getQuad(int index);
+    int size() const;
+    void optimize();
+    vector<Quad*>::iterator begin();
+    vector<Quad*>::iterator end();
+};
+
+extern QuadContainer intermediateCode;
 class Array
 {
     public:
@@ -255,7 +271,7 @@ string toString(int i);
 string toString(char c);
 string toString(float f);
 
-extern vector<Quad *> quadArray;
+//extern vector<Quad *> quadArray;
 extern SymbolTable *currentTable, *globalTable;
 extern Symbol *currentSymbol;
 extern SymbolType::SpecificType currentType;
