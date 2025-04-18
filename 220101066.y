@@ -80,6 +80,7 @@
 %token RSHIFT
 %token BIT_OR
 %token BIT_XOR
+%token IFX
 
 /*
 ID points to its entry in the symbol table
@@ -93,7 +94,8 @@ The remaining are constants from the code
 %token<floatVal> FLOAT_CONST
 
 // for handling dangling else problem
-%right THEN ELSE
+%nonassoc IFX
+%nonassoc ELSE
 
 %type<unaryOperator>                        //unary operator as character
     unary_operator
@@ -1308,7 +1310,7 @@ expression_opt:
 
 IF ELSE
 
--> the %prec THEN : to remove ambiguity
+-> the %prec IFX : to remove ambiguity
 
 S -> if (B) M S1 N
 backpatch(B.truelist, M.instr )
@@ -1322,7 +1324,7 @@ S.nextlist = merge(merge(S1.nextlist, N.nextlist), S2 .nextlist)
 */
 
 selection_statement:
-                    IF LPARAN expression N RPARAN M statement N %prec THEN    // TODO:
+                    IF LPARAN expression N RPARAN M statement N %prec IFX    // TODO:
                         {
                             yyinfo("selection_statement => if ( expression ) statement");
                             backpatch($4->nextList, nextInstruction());
