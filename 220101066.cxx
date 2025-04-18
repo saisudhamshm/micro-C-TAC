@@ -551,7 +551,7 @@ int main()
     cout << left;
 
 
-    yyparse();      // calling the parser
+    yyparse();      // calling the compiler
 
     // globalTable->setFunctionToZero();
 

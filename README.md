@@ -39,10 +39,10 @@ Types supported:
 ``` bash
 make
 ```
-This will generate the `parser` executable.
+This will generate the `compiler` executable.
 ## How to Run
 ``` bash
-./parser < input_file.mc > output_file.txt
+./compiler < input_file.mc > output_file.txt
 ```
 Where `.mc` is the extension for Mini-C source files.
 ## Testing
