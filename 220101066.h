@@ -240,7 +240,7 @@ string toString(int i);
 string toString(char c);
 string toString(float f);
 
-//extern vector<TAC *> TACArray;
+
 extern SymbolTable *currentTable, *globalTable;
 extern Symbol *currentSymbol;
 extern SymbolType::SpecificType currentType;

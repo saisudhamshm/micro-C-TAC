@@ -14,7 +14,7 @@ The compiler supports a language similar to C but with the following notable dif
 - **220101066.y**: Bison grammar file defining the language syntax
 - **220101066.l**: Flex lexical analyzer for tokenizing input
 - **220101066.h**: Header file containing class definitions for the compiler
-- **220101066.cxx**: Implementation of the compiler components
+- **220101066.cpp**: Implementation of the compiler components
 - **Makefile**: Build system configuration
 
 ## Key Components
