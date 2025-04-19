@@ -44,6 +44,7 @@ This will generate the `compiler` executable.
 ``` bash
 ./compiler < input_file.mc > output_file.txt
 ```
+note that generated text file may have several initial new line characters
 Where `.mc` is the extension for Mini-C source files.
 ## Testing
 The project includes a test target to validate the compiler with sample programs:
