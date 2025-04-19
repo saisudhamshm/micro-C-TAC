@@ -146,6 +146,8 @@ public:
     int getSymbolCount();
     bool hasSymbol(string name);
     void markComplete();
+    string getCategoryString(Symbol::Category category);
+    string formatFunctionSignature(const string& functionName);
 };
 
 class TAC{

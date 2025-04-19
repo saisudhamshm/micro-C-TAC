@@ -5,7 +5,7 @@ Symbol *currentSymbol;
 SymbolType::SpecificType currentType;
 int tableCount, temporaryCount;
 
-// In 220101066.cxx (replacing the current TACArray declaration)
+
 TACContainer intermediateCode;
 
 TACContainer::TACContainer() : currentIndex(0) {}
@@ -128,7 +128,7 @@ SymbolTable::SymbolTable(string _identifier, TableScope _scope, SymbolTable *_pa
     nestingLevel(_nestingLevel),
     parentTable(_parent) {}
 
-// Update lookupSymbol method (was search)
+
 Symbol *SymbolTable::lookupSymbol(string name) {
     // If symbol already present in current table
     if(entries.find(name) != entries.end()) {
@@ -206,83 +206,120 @@ void SymbolTable::computeOffsets() {
 }
 
 
-// Update displayTable method (was print)
+
 void SymbolTable::displayTable() {
-    cout << string(140, '-') << endl;
-       cout << "Symbol Table Name: " << setw(100)<< identifier << "Parent Name: " << ((parentTable) ? parentTable->identifier : "None") << endl;
-       cout << string(140, '-') << endl;
-       cout << setw(20) << "Name" << setw(40) << "Type" <<setw(20)<<"Category"<< setw(20) << "Initial Value" << setw(20) << "Offset" << setw(20) << "Size" << setw(20) << "Nested Table"
-            << "\n\n";
+    const int LINE_WIDTH = 140;
+    const int NAME_COL_WIDTH = 20;
+    const int TYPE_COL_WIDTH = 40;
+    const int CATEGORY_COL_WIDTH = 20;
+    const int VALUE_COL_WIDTH = 20;
+    const int OFFSET_COL_WIDTH = 20;
+    const int SIZE_COL_WIDTH = 20;
+    const int NESTED_COL_WIDTH = 20;
 
-       // to store tables which are called in this currentTable
-       vector<SymbolTable *> tovisit;
+    // Print table header
+    cout << string(LINE_WIDTH, '-') << endl;
+    cout << "Symbol Table Name: " << setw(100) << identifier
+         << "Parent Name: " << ((parentTable) ? parentTable->identifier : "None") << endl;
+    cout << string(LINE_WIDTH, '-') << endl;
 
-       // traversing the currentSymbolTable
-       for (auto &x : entries)
-       {
-           cout << setw(20) << x.first;            // printing the name of the symbol
-           fflush(stdout);
+    // Print column headers
+    cout << setw(NAME_COL_WIDTH) << "Name"
+         << setw(TYPE_COL_WIDTH) << "Type"
+         << setw(CATEGORY_COL_WIDTH) << "Category"
+         << setw(VALUE_COL_WIDTH) << "Initial Value"
+         << setw(OFFSET_COL_WIDTH) << "Offset"
+         << setw(SIZE_COL_WIDTH) << "Size"
+         << setw(NESTED_COL_WIDTH) << "Nested Table"
+         << "\n\n";
 
-           if(x.second.category != Symbol::FUNCTION)
-               cout<<setw(40)<<x.second.type->toString();
-           else{
-               string tempstr = "(";
-               // cout<<setw(40)<<x.second.type->toString();
-               SymbolTable* temp = globalTable->lookupSymbol(x.first)->nestedTable;
-               // cout<<"( ";
-               bool chk1=false;;
-               vector<string> vs1;
-               for(auto y : temp->entries){
-                   if(y.second.category == Symbol::PARAMETER){
-                       // tempstr += y.second.type->toString();
-                       vs1.push_back(y.second.type->toString());
-                       // tempstr += " x ";
-                   }
-               }
+    // Collection for nested tables to visit later
+    vector<SymbolTable*> nestedTablesToVisit;
 
-               for(int i=0;i<vs1.size();i++){
-                   tempstr += vs1[i];
-                   if(i!=(vs1.size()-1)){
-                       tempstr += " x ";
-                   }
-               }
-               tempstr+=") --> ("+ x.second.type->toString()+")";
-               if(vs1.size()){
-                   chk1=true;
-                   cout<<setw(40)<<tempstr;
-               }else{
-                   cout<<setw(40)<<x.second.type->toString();
-               }
-           }
+    // Print entries in current table
+    for (const auto& [symbolName, symbolData] : entries) {
+        // Print symbol name
+        cout << setw(NAME_COL_WIDTH) << symbolName;
+        fflush(stdout);
 
-           cout<<setw(20);
-           if(x.second.category == Symbol::LOCAL){
-               cout<<"local";
-           }else if(x.second.category == Symbol::GLOBAL){
-               cout<<"global";
-           }else if(x.second.category == Symbol::FUNCTION){
-               cout<<"function";
-           }else if(x.second.category == Symbol::PARAMETER){
-               cout<<"parameter";
-           }else if(x.second.category == Symbol::TEMPORARY){
-               cout<<"temporary";
-           }
+        // Print type information
+        if (symbolData.category != Symbol::FUNCTION) {
+            cout << setw(TYPE_COL_WIDTH) << symbolData.type->toString();
+        } else {
+            string functionSignature = formatFunctionSignature(symbolName);
+            cout << setw(TYPE_COL_WIDTH) << functionSignature;
+        }
 
-           cout << setw(20) << x.second.initialValue << setw(20) << x.second.offset << setw(20) << x.second.size;
-           cout << setw(20) << (x.second.nestedTable ? x.second.nestedTable->identifier : "NULL") << endl;
-           if (x.second.nestedTable)
-           {
-               tovisit.push_back(x.second.nestedTable);
-           }
-       }
-       cout << string(140, '-') << endl;
-       cout <<"\n\n";
+        // Print category
+        cout << setw(CATEGORY_COL_WIDTH) << getCategoryString(symbolData.category);
 
-       // recursively print all symbol tables
-       for (auto &table : tovisit)
-       {
-           table->displayTable();
-       }
+        // Print remaining symbol information
+        cout << setw(VALUE_COL_WIDTH) << symbolData.initialValue
+             << setw(OFFSET_COL_WIDTH) << symbolData.offset
+             << setw(SIZE_COL_WIDTH) << symbolData.size
+             << setw(NESTED_COL_WIDTH) << (symbolData.nestedTable ? symbolData.nestedTable->identifier : "NULL")
+             << endl;
+
+        // Add nested table to visit list if exists
+        if (symbolData.nestedTable) {
+            nestedTablesToVisit.push_back(symbolData.nestedTable);
+        }
+    }
+
+    cout << string(LINE_WIDTH, '-') << endl;
+    cout << "\n\n";
+
+    // Recursively display nested tables
+    for (const auto& nestedTable : nestedTablesToVisit) {
+        nestedTable->displayTable();
+    }
+}
+
+// Helper function to format function signatures
+string SymbolTable::formatFunctionSignature(const string& functionName) {
+    SymbolTable* paramTable = globalTable->lookupSymbol(functionName)->nestedTable;
+    if (!paramTable) {
+        return functionName;
+    }
+
+    // Collect parameter types
+    vector<string> paramTypes;
+    for (const auto& [_, paramData] : paramTable->entries) {
+        if (paramData.category == Symbol::PARAMETER) {
+            paramTypes.push_back(paramData.type->toString());
+        }
+    }
+
+    // No parameters
+    if (paramTypes.empty()) {
+        return lookupSymbol(functionName)->type->toString();
+    }
+
+    // Format: (param1 x param2 x ...) --> (returnType)
+    string signature = "(";
+    for (size_t i = 0; i < paramTypes.size(); ++i) {
+        signature += paramTypes[i];
+        if (i < paramTypes.size() - 1) {
+            signature += " x ";
+        }
+    }
+    signature += ") --> (";
+    signature += lookupSymbol(functionName)->type->toString();
+    signature += ")";
+
+    return signature;
+}
+
+// Helper function to convert category enum to string
+string SymbolTable::getCategoryString(Symbol::Category category) {
+    switch (category) {
+        case Symbol::LOCAL:     return "local";
+        case Symbol::GLOBAL:    return "global";
+        case Symbol::FUNCTION:  return "function";
+        case Symbol::PARAMETER: return "parameter";
+        case Symbol::TEMPORARY: return "temporary";
+        default:                return "unknown";
+    }
 }
 
 
@@ -537,10 +574,26 @@ string toString(char c)
     return string(1, c);
 }
 
+void printTACArray() {
+
+    int idx = 1;
+
+    cout << string(140, '=') << endl;
+    cout << string(30, ' ') << "TAC Array" << endl;
+    cout << string(140, '=') << endl;
+
+    cout << setw(20) << "Op" << setw(20) << "arg1" << setw(20) << "arg2" << setw(20) << "result" << setw(20) << "Index" << setw(20) << "Code in text\n";
+    cout << setw(0) << string(140, '-') << endl;
+
+    for (auto it = intermediateCode.begin(); it != intermediateCode.end(); it++) {
+        cout << setw(20);
+        (*it)->print(idx++);
+    }
+}
 
 int main()
 {
-    // initializing tablecount and tempCount
+ 
     tableCount = 0;             
     temporaryCount = 0;
     globalTable = new SymbolTable("global",SymbolTable::GLOBAL_SCOPE
@@ -551,28 +604,13 @@ int main()
     cout << left;
 
 
-    yyparse();      // calling the compiler
+    yyparse();   
 
-    // globalTable->setFunctionToZero();
 
     globalTable->computeOffsets();
     globalTable->displayTable();
 
     // Printing the TACs Array
-    int idx = 1;
-
-    cout << string(140, '=') << endl;
-    cout << string(30,' ') << "TAC Array" << endl;
-    cout << string(140, '=') << endl;
-
-    cout<<setw(20)<<"Op"<<setw(20)<<"arg1"<<setw(20)<<"arg2"<<setw(20)<<"result"<<setw(20)<<"Index"<<setw(20)<<"Code in text\n";
-    cout<<setw(0) << string(140, '-') << endl;   
-
-   for (auto it = intermediateCode.begin(); it != intermediateCode.end(); it++)
-   {
-       // cout << setw(4) << ins++ << ": ";
-       cout << setw(20);
-       (*it)->print(idx++);
-   }
+   printTACArray();
     return 0;
 }
