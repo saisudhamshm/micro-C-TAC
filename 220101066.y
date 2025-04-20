@@ -348,6 +348,18 @@ unary_expression:
                                 emit($1, $$->symbol->name, $2->symbol->name);
                             }
                         }
+                        |INC unary_expression      //unary increment operator before an expression
+                        		{
+                        			emit("+",$2->symbol->name,$2->symbol->name,"1");  //incrementing value of expression value by 1
+                        			$$=$2;										    //assigning the new value to the LHS expression
+
+                        		}
+                        		| DEC unary_expression		//unary decrement operator before an expression
+                        		{
+                        			emit("-",$2->symbol->name,$2->symbol->name,"1");  //decrementing value of expression value by 1
+                        			$$=$2;											//assigning the new value to the LHS expression
+
+                        		}
                     ;
 
 
@@ -377,14 +389,6 @@ unary_operator:
 
                         $$ = strdup("!");
                     }
-                | INC
-                {
-                $$=strdup("++");
-                }
-                | DEC
-                {
-                $$=strdup("--");
-                }
                 ;
 
 
