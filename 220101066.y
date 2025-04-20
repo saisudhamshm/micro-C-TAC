@@ -177,7 +177,7 @@ primary_expression:
                     | CHAR_CONST
                         {
 
-                            // exactly similar to INT_COST
+
                             $$ = new Expression();
                             $$->symbol = generateTemporary(SymbolType::CHAR_T, $1);
                             emit("=", $$->symbol->name, $1);
@@ -186,10 +186,10 @@ primary_expression:
                         {
 
                             $$ = new Expression();
-                            // no 'string' type, but if char* str = "Vedant-Mansi"
-                            // then the string "Vedant-Mansi" is identified as STRING_const/literal,
+
+
 		                    $$->symbol = generateTemporary(SymbolType::POINTER, $1);
-                            // emit("=str", $$->symbol->name, stringLiterals.size());
+
 		                    $$->symbol->type->arrayType = new SymbolType(SymbolType::CHAR_T);
                         }
                     | LPARAN expression RPARAN
@@ -212,7 +212,7 @@ postfix_expression:
                     primary_expression
                         {
 
-                            $$ = new Array();                                   // creating a new array
+                            $$ = new Array();
                             $$->symbol = $1->symbol;
                             $$->temp = $$->symbol;
                             if($1->symbol)
@@ -223,16 +223,16 @@ postfix_expression:
                         }
                     | postfix_expression LSQBRACKET expression RSQBRACKET
                         {
-                            // array expression
 
-                            $$ = new Array();           // creating new array object
-                            $$->symbol = $1->symbol;    // previous symbol
+
+                            $$ = new Array();
+                            $$->symbol = $1->symbol;
                             $$->subArrayType = $1->subArrayType->arrayType;
-                            $$->temp = generateTemporary(SymbolType::INT_T); // temporary to compute location
-                            $$->type = Array::ARRAY;    // type will be array
+                            $$->temp = generateTemporary(SymbolType::INT_T);
+                            $$->type = Array::ARRAY;
 
                             if($1->type == Array::ARRAY) {
-                                // adding the size of subarray and adding
+
                                 Symbol *sym = generateTemporary(SymbolType::INT_T);
                                 emit("*", sym->name, $3->symbol->name, toString($$->subArrayType->getSize()));
                                 emit("+", $$->temp->name, $1->temp->name, sym->name);
@@ -243,8 +243,7 @@ postfix_expression:
                         }
                     | postfix_expression LPARAN argument_expression_list_opt RPARAN
                         {
-                            // function
-                            // number of parameters - argument_expression_list
+
 
                             $$ = new Array();
                             $$->symbol = generateTemporary($1->symbol->type->type);
@@ -260,7 +259,7 @@ postfix_expression:
                     ;
 
 
-// represents number of parameters in the function call
+
 argument_expression_list_opt:
                                 argument_expression_list
                                     {
@@ -269,7 +268,7 @@ argument_expression_list_opt:
                                     }
                                 | /* epsilon */
                                     {
-                                        // empty so 0 params
+
 
                                         $$ = 0;
                                     }
@@ -278,16 +277,14 @@ argument_expression_list_opt:
 argument_expression_list:
                             assignment_expression
                                 {
-                                    // first parameter
-                                    // initialise param count to 1
+
 
                                     emit("param", $1->symbol->name);
                                     $$ = 1;
                                 }
                             | argument_expression_list COMMA assignment_expression
                                 {
-                                    // new parameter
-                                    // adding 1 to param count
+
 
                                     emit("param", $3->symbol->name);
                                     $$ = $1 + 1;
@@ -304,27 +301,24 @@ unary_expression:
                         {
 
                             if(strcmp($1, "&") == 0) {
-                                // int* p = &x;
-                                // here x is the unary expression
+
                                 $$ = new Array();
-                                // i need to create a temp var for storing the address of x (&x), which needs to be pointer type
+
                                 $$->symbol = generateTemporary(SymbolType::POINTER);
-                                // if x is a pointer of int, then $$->symbol's type's array type is set to int
+
                                 $$->symbol->type->arrayType = $2->symbol->type;
 
                                 emit("=&", $$->symbol->name, $2->symbol->name);
 
                             } else if(strcmp($1, "*") == 0) {
-                                // if y = *x;
+
 
                                 $$ = new Array();
                                 $$->type = Array::POINTER;
-                                // $$->temp = generateTemporary($2->symbol->type->type);
+
                                 $$->temp = generateTemporary($2->temp->type->arrayType->type);
-                                // if x = *y;
-                                // then temp will be t11 = int value of (*y), after dereferencing
+
                                 $$->symbol = $2->symbol;
-                                // TODO:
                                 $$->temp->type->arrayType = $2->temp->type->arrayType->arrayType;
                                 emit("=*", $$->temp->name, $2->symbol->name);
                             } else if(strcmp($1, "+") == 0) {
@@ -468,7 +462,7 @@ additive_expression:
                         {
 
                             $$ = $1;
-                            // emit("param", $1->symbol->name);
+
                         }
                     | additive_expression PLUS multiplicative_expression
                         {
@@ -774,21 +768,21 @@ assignment_expression:
                             {
 
                                 $$ = $1;
-                                // emit("param", $1->symbol->name);
+
                             }
                         | unary_expression ASSIGN assignment_expression
                             {
 
                                 if($1->type == Array::ARRAY) {
-                                    // EQUAL to array
+
                                     $3->symbol = $3->symbol->convert($1->subArrayType->type);
                                     emit("[]=", $1->symbol->name, $1->temp->name, $3->symbol->name);
                                 } else if($1->type == Array::POINTER) {
-                                    // EQUAL to pointer
+
                                     $3->symbol = $3->symbol->convert($1->temp->type->type);
                                     emit("*=", $1->symbol->name, $3->symbol->name);
                                 } else {
-                                    // EQUAL to other
+
                                     $3->symbol = $3->symbol->convert($1->symbol->type->type);
 			                        emit("=", $1->symbol->name, $3->symbol->name);
                                 }
@@ -804,7 +798,7 @@ expression:
                 }
             ;
 
-//-------------------------------------------- Declarations
+
 
 declaration:
             type_specifier init_declarator SEMICOLON
@@ -819,10 +813,10 @@ init_declarator:
                 | declarator ASSIGN initialiser
                     {
 
-                        // if there is some initial value assign it
+
                         if($3->initialValue != "")
                             $1->initialValue = $3->initialValue;
-                        // = EQUAL
+
 		                emit("=", $1->name, $3->name);
                     }
                 ;
@@ -846,7 +840,7 @@ type_specifier:
                     }
                 |FLOAT
                      {
-                         currentType = SymbolType::FLOAT_T; // Add FLOAT_T to SymbolType enum in translator.h
+                         currentType = SymbolType::FLOAT_T;
                      }
 
                 ;
@@ -856,14 +850,12 @@ declarator:
                 {
 
                     SymbolType *it = $1;
-                    it->arrayType = $2->type; // this updates the type of 2 as pointer to int
-                    // but for functions/arrays, it should be different?
-                    // int* a[10] = should be array of pointers and not pointer to array
-                    // int* func(){}    should's return value should be int*
+                    it->arrayType = $2->type;
+
                     if($2->type->type == SymbolType::ARRAY){
                         $1->arrayType = $2->type->arrayType;
                         $2->type->arrayType = $1;
-                        // $$ = $2->update();
+
                     }
                     else if( $2->type->type == SymbolType::FUNCTION){
                         currentTable->lookupSymbol("return")->update($1);
@@ -879,7 +871,7 @@ declarator:
                 }
             ;
 
-// new grammar rule added
+
 change_scope_definition:
                     {
                         if(currentSymbol->nestedTable == NULL) {
@@ -887,7 +879,7 @@ change_scope_definition:
                         }
                         else {
                             changeTable(currentSymbol->nestedTable);
-                            // emit("label", currentTable->name);
+
                         }
                     }
 	            ;
@@ -905,7 +897,7 @@ change_scope_declaration:
 	            ;
 
 
-// grammar
+
 AUG1: ID
     {
         $$ = $1->update(new SymbolType(currentType));
@@ -922,10 +914,10 @@ direct_declarator:
                         {
 
 
-                            // forcefully creating a new entery inside this table
+
                             $1 = currentTable->lookupLocalSymbol($1->name);
 
-                            // whenever we see a declarator, then we set it's type to the last type seen by the lexer
+
                             $$ = $1->update(new SymbolType(currentType)); // update type to the last type seen
                             currentSymbol = $$;
                         }
@@ -933,7 +925,7 @@ direct_declarator:
                         {
 
 
-                            // forcefully creating a new entery inside this table
+
                             $1 = currentTable->lookupLocalSymbol($1->name);
 
                             SymbolType *it1 = $1->type, *it2 = NULL;
@@ -944,7 +936,7 @@ direct_declarator:
                             }
 
                             if(it2 != NULL) {
-                                // nested array case
+
                                 it2->arrayType =  new SymbolType(SymbolType::ARRAY, it1, $3);
                                 $$ = $1->update($1->type);
                             } else {
@@ -955,17 +947,17 @@ direct_declarator:
                         {
 
 
-                            // function declaration
+
                             currentTable->identifier = $1->name;
 
                             $1->type->paramType = $4;
 
                             if($1->type->type != SymbolType::VOID_T) {
-                                // set type of return value
+
                                 currentTable->lookupSymbol("return")->update($1->type);
                             }
 
-                            // move back to the global table and set the nested table for the function
+
                             $1->nestedTable = currentTable;
                             $1->category = Symbol::FUNCTION;
                             currentTable->parentTable = globalTable;
@@ -976,16 +968,16 @@ direct_declarator:
                         {
 
 
-                            // same as the previous rule
+
                             currentTable->identifier = $1->name;
-                            // $1->update(new SymbolType(currentType));
+
 
                             if($1->type->type != SymbolType::VOID_T) {
-                                // set type of return value
+
                                 currentTable->lookupSymbol("return")->update($1->type);
                             }
 
-                            // move back to the global table and set the nested table for the function
+
                             $1->nestedTable = currentTable;
                             $1->category = Symbol::FUNCTION;
                             currentTable->parentTable = globalTable;
@@ -1014,17 +1006,6 @@ parameter_list:
                 | parameter_list COMMA parameter_declaration
                     {
 
-                        // SymbolType* temp1 = $1;
-                        // SymbolType* temp2 = NULL;
-                        // printf("hi1\n");
-                        // while(temp1 != nullptr){
-                        //     printf("hi2\n");
-                        //     temp2 = temp1;
-                        //     temp1 = temp1->paramType;
-                        // }
-                        // printf("hi3\n");
-                        // if(temp2)
-                        // temp2->paramType = $3;
                         $$ = $1;
                     }
                 ;
@@ -1089,7 +1070,7 @@ change_block:
                     {
                         string name = currentTable->identifier + "_" + toString(tableCount);
                         tableCount++;
-                        Symbol *s = currentTable->lookupSymbol(name); // create new entry in symbol table
+                        Symbol *s = currentTable->lookupSymbol(name);
                         s->nestedTable = new SymbolTable(name,SymbolTable::BLOCK_SCOPE
  ,currentTable);
                         s->type = new SymbolType(SymbolType::BLOCK);
@@ -1102,7 +1083,7 @@ compound_statement:
                         {
 
                             $$ = $4;
-                            changeTable(currentTable->parentTable); // block over, move back to the parent table
+                            changeTable(currentTable->parentTable);
                         }
                     ;
 
@@ -1129,7 +1110,6 @@ block_item_list:
                     {
 
                         $$ = $3;
-                        // after completion of block_item_list(1) we move to block_item(3)
                         backpatch($1->nextList,$2);
                     }
                 ;
@@ -1170,14 +1150,14 @@ expression_opt:
 
 
 selection_statement:
-                    IF LPARAN expression N RPARAN M statement N %prec IFX    // TODO:
+                    IF LPARAN expression N RPARAN M statement N %prec IFX :
                         {
 
                             backpatch($4->nextList, nextInstruction());
                             $$ = new Statement();
                             $3->toBool();
-                            backpatch($3->trueList, $6); // if true go to M
-                            $$->nextList = merge($3->falseList, merge($7->nextList, $8->nextList)); // exits
+                            backpatch($3->trueList, $6);
+                            $$->nextList = merge($3->falseList, merge($7->nextList, $8->nextList));
                         }
                     | IF LPARAN expression N RPARAN M statement N ELSE M statement
                         {
@@ -1185,9 +1165,9 @@ selection_statement:
                             backpatch($4->nextList, nextInstruction());
                             $$ = new Statement();
                             $3->toBool();
-                            backpatch($3->trueList, $6); // if true go to M
-                            backpatch($3->falseList, $10); // if false go to else
-                            $$->nextList = merge($11->nextList, merge($7->nextList, $8->nextList)); // exits
+                            backpatch($3->trueList, $6);
+                            backpatch($3->falseList, $10);
+                            $$->nextList = merge($11->nextList, merge($7->nextList, $8->nextList));
                         }
                     ;
 
@@ -1199,11 +1179,11 @@ iteration_statement:
 
                             $$ = new Statement();
                             $6->toBool();
-                            backpatch($6->trueList, $12); // if true go to M3 (loop body)
-                            backpatch($10->nextList, $5); // after N go to M1 (condition check)
-                            backpatch($13->nextList, $8); // after S1 (loop body) go to M2 (increment/decrement/any other operation)
+                            backpatch($6->trueList, $12);
+                            backpatch($10->nextList, $5);
+                            backpatch($13->nextList, $8);
                             emit("goto", toString($8));
-                            $$->nextList = $6->falseList; // exit if false
+                            $$->nextList = $6->falseList;
                         }
                     |WHILE M LPARAN expression RPARAN M statement
                          {
@@ -1211,19 +1191,19 @@ iteration_statement:
                          {
                              $$ = new Statement();
 
-                             // Evaluate the expression
+
                              $4->toBool();
 
-                             // Backpatch the true list of the expression to the loop body
+
                              backpatch($4->trueList, $6);
 
-                             // Backpatch the false list of the expression to the exit
+
                              $$->nextList = $4->falseList;
 
-                             // Backpatch the next list of the statement to the start of condition checking (M)
+
                              backpatch($7->nextList, $2);
 
-                             // Emit a GOTO to go back to the start of the loop
+
                              emit("goto", toString($2));
                          }
 
@@ -1271,7 +1251,7 @@ temp_declaration:
 
                         ;
 
-function_definition:  // TODO:
+function_definition:
                     type_specifier declarator change_scope_definition BEG block_item_list_opt END
                         {
 
@@ -1280,7 +1260,6 @@ function_definition:  // TODO:
                                 currentTable->lookupSymbol("return")->update($2->type);
                             }
                             $2->isFunction = true;
-                            // $3->type->returnType->type= $2;
                             changeTable(globalTable);
                         }
                     ;
