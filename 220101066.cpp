@@ -419,7 +419,10 @@ void TAC::print(int idx) {
         cout << "\t" << result << " = - " << arg1 << endl;
     } else if (op == "!") {
         cout << "\t" << result << " = ! " << arg1 << endl;
-    } else {
+    } else if(op == "++"||op=="--"){
+    cout<<"\t"<<result<<" = "<<arg1<<op<<endl;
+    }
+    else {
         cout << op << arg1 << arg2 << result << endl;
         cout << "INVALID OPERATOR\n";
     }

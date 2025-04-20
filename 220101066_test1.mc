@@ -6,6 +6,7 @@ return x;
 end
 integer main() begin
 integer x = 2;
+x++;
 float y = 3;
 integer a=1;
 integer b=2;

@@ -67,6 +67,8 @@
 %token BIT_OR
 %token BIT_XOR
 %token IFX
+%token INC
+%token DEC
 
 /*
 ID points to its entry in the symbol table
@@ -256,6 +258,20 @@ postfix_expression:
                         {
 
                         }
+                    |postfix_expression INC
+                             {
+                                 $$ = new Array();
+                                 $$->symbol = generateTemporary($1->symbol->type->type);
+                                 emit("=", $$->symbol->name, $1->symbol->name);
+                                 emit("+", $1->symbol->name, $1->symbol->name, "1");
+                             }
+                    |postfix_expression DEC
+                             {
+                                 $$ = new Array();
+                                 $$->symbol = generateTemporary($1->symbol->type->type);
+                                emit("=", $$->symbol->name, $1->symbol->name);
+                                emit("-", $1->symbol->name, $1->symbol->name, "1");
+                             }
                     ;
 
 
@@ -359,6 +375,14 @@ unary_operator:
 
                         $$ = strdup("!");
                     }
+                | INC
+                {
+                $$=strdup("++");
+                }
+                | DEC
+                {
+                $$=strdup("--");
+                }
                 ;
 
 
@@ -1150,7 +1174,7 @@ expression_opt:
 
 
 selection_statement:
-                    IF LPARAN expression N RPARAN M statement N %prec IFX :
+                    IF LPARAN expression N RPARAN M statement N %prec IFX //ERR:
                         {
 
                             backpatch($4->nextList, nextInstruction());

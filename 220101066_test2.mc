@@ -36,6 +36,10 @@ begin
     integer b = 10;
     float result;
     char c = 'X';
+    a++;
+    b--;
+    ++a;
+    --b;
 
     // Array declaration
     integer numbers[10];

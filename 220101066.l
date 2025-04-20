@@ -10,7 +10,7 @@
 
 
 KEYWORD                "char"|"else"|"for"|"if"|"integer"|"return"|"void"|"float"|"while"|"do"|"begin"|"end"
-PUNC                    "["|"]"|"("|")"|"->"|"!"|"+"|"-"|"*"|"/"|"|"|"<<"|">>"|"<"|">"|"<="|">="|"^"|"||"|"&&"|"=="|"&"|"%"|":"|";"|"?"|"="|","|"!="
+PUNC                    "["|"]"|"("|")"|"->"|"!"|"+"|"-"|"*"|"/"|"|"|"<<"|">>"|"<"|">"|"<="|">="|"^"|"||"|"&&"|"=="|"&"|"%"|":"|";"|"?"|"="|","|"!="|"++"|"--"
 
 /* Identifier */
 ID						[a-zA-Z_][a-zA-Z0-9_]*
@@ -79,6 +79,8 @@ WS						[ \t\n]
                                    else if (strcmp(yytext, ">=") == 0) return GREATEREQ;
                                    else if (strcmp(yytext, "==") == 0) return EQUALS;
                                    else if (strcmp(yytext, "!=") == 0) return NOTEQ;
+                                   else if(strcmp(yytext,"++") ==0 )  return INC;
+                                   else if(strcmp(yytext,"--") ==0) return DEC;
                                    else if (strcmp(yytext, "+") == 0) return PLUS;
                                    else if (strcmp(yytext, "-") == 0) return SUB;
                                    else if (strcmp(yytext, "*") == 0) return MULT;
