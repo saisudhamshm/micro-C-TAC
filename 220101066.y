@@ -262,6 +262,7 @@ postfix_expression:
                              {
                                  $$ = new Array();
                                  $$->symbol = generateTemporary($1->symbol->type->type);
+                                 $$->symbol->type->arrayType = $1->symbol->type->arrayType;
                                  emit("=", $$->symbol->name, $1->symbol->name);
                                  emit("+", $1->symbol->name, $1->symbol->name, "1");
                              }
@@ -269,6 +270,7 @@ postfix_expression:
                              {
                                  $$ = new Array();
                                  $$->symbol = generateTemporary($1->symbol->type->type);
+                                 $$->symbol->type->arrayType = $1->symbol->type->arrayType;
                                 emit("=", $$->symbol->name, $1->symbol->name);
                                 emit("-", $1->symbol->name, $1->symbol->name, "1");
                              }
